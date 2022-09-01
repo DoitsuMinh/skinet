@@ -1,6 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Insfrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Core.Interfaces;
 
 namespace API
 {
@@ -16,10 +17,10 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-            services.AddControllers();
-            
-            services.AddDbContext<StoreContext>(c => c.UseSqlite(_config.GetConnectionString("DefaultConnection")));
+            services.AddControllers();            
+            services.AddDbContext<StoreContext>(c => 
+                c.UseSqlite(_config.GetConnectionString("DefaultConnection")));
+            services.AddScoped<IProductRepository, ProductRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
