@@ -1,10 +1,8 @@
-using Microsoft.OpenApi.Models;
 using Insfrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Core.Interfaces;
-using Core.Enitities;
 using API.Helpers;
 using API.Middleware;
+using API.Extensions;
 
 namespace API
 {
@@ -21,23 +19,23 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
             services.AddDbContext<StoreContext>(c =>
                 c.UseSqlite(_config.GetConnectionString("DefaultConnection")));
-            services.AddScoped<IProductRepository, ProductRepository>();
-
-            services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));
-
+            
             services.AddAutoMapper(typeof(MappingProfiles));
+
+            services.AddApplicationServices();
+
+            services.AddSwaggerDocumentation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseMiddleware<ExceptionMiddleware>();
-            if (env.IsDevelopment())
-            {
-                
-            }
+            
+            app.UseSwaggerDocumentation();        
 
             app.UseStatusCodePagesWithReExecute("/errors/{0}");
 
