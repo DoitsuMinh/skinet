@@ -19,6 +19,7 @@
                         [class.active]="brand.id === this.shopParams.brandId" 
                         [value]="brand.id"
                         (click)="onBrandIdSelected(brand.id)"
+                        style="cursor: pointer;"
                     >
                         {{brand.name}}
                     </li>
@@ -30,6 +31,7 @@
                         [class.active]="type.id === this.shopParams.typeId"
                         [value]="type.id"
                         (click)="onTypeIdSelected(type.id)"
+                        style="cursor: pointer;"
                     >
                         {{type.name}}
                     </li>

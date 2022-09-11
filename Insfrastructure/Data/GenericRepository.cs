@@ -2,6 +2,7 @@ using Core.Enitities;
 using Core.Specifications;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace Insfrastructure.Data
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
