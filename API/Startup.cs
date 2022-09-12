@@ -1,10 +1,10 @@
-using Insfrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using API.Helpers;
 using API.Middleware;
 using API.Extensions;
-using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
+using Insfrastructure.Identity;
+using Insfrastructure.Data;
 
 namespace API
 {
@@ -25,16 +25,21 @@ namespace API
             services.AddDbContext<StoreContext>(c =>
                 c.UseSqlite(_config.GetConnectionString("DefaultConnection")));
 
-            services.AddSingleton<IConnectionMultiplexer>(c => {
+            services.AddDbContext<AppIdentityDbContext>(x =>
+                x.UseSqlite(_config.GetConnectionString("IdentityConnection")));
+
+            services.AddSingleton<IConnectionMultiplexer>(c =>
+            {
                 var configuration = ConfigurationOptions.Parse(_config
-                    .GetConnectionString("Redis"),  true);
+                    .GetConnectionString("Redis"), true);
                 return ConnectionMultiplexer.Connect(configuration);
             });
-            
+
             services.AddAutoMapper(typeof(MappingProfiles));
 
             services.AddApplicationServices();
 
+            services.AddIdentityServices(_config);
             services.AddSwaggerDocumentation();
 
             //cross-origin resource sharing
@@ -51,8 +56,8 @@ namespace API
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseMiddleware<ExceptionMiddleware>();
-            
-            app.UseSwaggerDocumentation();        
+
+            app.UseSwaggerDocumentation();
 
             app.UseStatusCodePagesWithReExecute("/errors/{0}");
 
@@ -64,6 +69,7 @@ namespace API
 
             app.UseCors("CorsPolicy");
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
