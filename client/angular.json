@@ -31,12 +31,8 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss",
-              "./node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "./node_modules/ngx-bootstrap/datepicker/bs-datepicker.css",
-              "./node_modules/bootswatch/dist/minty/bootstrap.min.css",
-              "./node_modules/font-awesome/css/font-awesome.css",
-              "./node_modules/ngx-toastr/toastr.css"
+              "@angular/material/prebuilt-themes/cyan-orange.css",
+              "src/styles.scss"
             ],
             "scripts": [],
             "browser": "src/main.ts"
@@ -84,8 +80,8 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "sslKey": "ssl/server.key",
-            "sslCert": "ssl/server.crt",
+            "sslKey": "ssl/localhost-key.pem",
+            "sslCert": "ssl/localhost.pem",
             "ssl": true
           }
         },
@@ -108,6 +104,7 @@
               "src/assets"
             ],
             "styles": [
+              "@angular/material/prebuilt-themes/cyan-orange.css",
               "src/styles.scss"
             ],
             "scripts": []

@@ -3,9 +3,10 @@ import { Observable } from 'rxjs';
 import { BreadcrumbService } from 'xng-breadcrumb';
 
 @Component({
-  selector: 'app-section-header',
-  templateUrl: './section-header.component.html',
-  styleUrls: ['./section-header.component.scss']
+    selector: 'app-section-header',
+    templateUrl: './section-header.component.html',
+    styleUrls: ['./section-header.component.scss'],
+    standalone: false
 })
 export class SectionHeaderComponent implements OnInit {
   breadcrumb$: Observable<any[]>;
