@@ -1,10 +1,10 @@
-using Core.Enitities;
-using Microsoft.AspNetCore.Mvc;
-using Core.Specifications;
 using API.Dtos;
-using AutoMapper;
 using API.Errors;
 using API.Helpers;
+using AutoMapper;
+using Core.Enitities;
+using Core.Specifications;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
@@ -28,21 +28,19 @@ namespace API.Controllers
 
         //http response status
         [HttpGet]
-        public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts(
-            [FromQuery]ProductSpecParams productParams)
+        public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts([FromQuery] ProductSpecParams productParams)
         {
             var spec = new ProductsWithTypesAndBrandsSpecificaiton(productParams);
 
             var countSpec = new ProductWithFiltersForCountSpecification(productParams);
-            
+
             var totalItems = await _productsRepo.CountAsync(countSpec);
 
             var products = await _productsRepo.ListAsync(spec);
 
-            var data = _mapper
-                .Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products);
+            var data = _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products);
 
-            return Ok(new Pagination<ProductToReturnDto>(productParams.PageIndex, productParams.PageSize, totalItems, data));
+            return Ok(data);
         }
 
         [HttpGet("{id}")]

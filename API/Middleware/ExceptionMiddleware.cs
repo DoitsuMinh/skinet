@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using API.Errors;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
-using API.Errors;
 
 namespace API.Middleware
 {
@@ -36,14 +32,12 @@ namespace API.Middleware
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
                 var response = _env.IsDevelopment()
-                    ? new ApiException((int)HttpStatusCode.InternalServerError, ex.Message,
-                    ex.StackTrace.ToString())
+                    ? new ApiException((int)HttpStatusCode.InternalServerError, ex.Message, ex.StackTrace.ToString())
                     : new ApiException((int)HttpStatusCode.InternalServerError);
 
                 var options = new JsonSerializerOptions
                 {
-                    PropertyNamingPolicy =
-                    JsonNamingPolicy.CamelCase
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
                 //serialize status

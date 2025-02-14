@@ -1,42 +1,39 @@
-import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
-import { catchError, delay, Observable, throwError } from 'rxjs';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
 import { NavigationExtras, Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+import { SnackbarService } from '../services/snackbar.service';
+import { catchError, throwError } from 'rxjs';
 
-@Injectable()
-export class ErrorInterceptor implements HttpInterceptor {
+export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+  const router = inject(Router);
+  const snackbar = inject(SnackbarService);
 
-  constructor(private router: Router, private toastr: ToastrService) {}
-
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return next.handle(request).pipe(
-      catchError(error => {
-        if (error) {
-          if (error.status === 400){
-            if (error.error.errors) {
-              throw error.error;
-            } else {
-              this.toastr.error(error.error.message, error.error.statusCode);
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 400) {
+        if (error.error.errors) {
+          const modelStateErrors = [];
+          for (const key in error.error.errors) {
+            if (error.error.errors[key]) {
+              modelStateErrors.push(error.error.errors[key])
             }
-            this.toastr.error(error.error.message, error.error.statusCode);
           }
-
-          if (error.status === 401) {
-            this.toastr.error(error.error.message, error.error.statusCode);
-          }
-
-          if (error.status === 404){
-            this.router.navigateByUrl('/not-found');
-          }
-
-          if(error.status === 500){
-            const navigationExtras: NavigationExtras = {state: {error: error.error}};
-            this.router.navigateByUrl('/server-error', navigationExtras);
-          }
+          throw modelStateErrors.flat();
+        } else {
+          snackbar.error(error.error.title || error.error)
         }
-        return throwError(error);
-      })
-    );
-  }
-}
+      }
+      if (error.status === 401) {
+        snackbar.error(error.error.title || error.error);
+      }
+      if (error.status === 404) {
+        router.navigateByUrl('/not-found');
+      }
+      // if (error.status === 500) {
+      //   const navigationExtras: NavigationExtras = { state: { error: error.error } }
+      //   router.navigateByUrl('/server-error', navigationExtras);
+      // }
+      return throwError(() => error);
+    })
+  );
+};

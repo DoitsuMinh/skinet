@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { BasketService } from './basket/basket.service';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from "./layout/header/header.component";
+import { ShopService } from './core/services/shop.service';
+import { Product } from './models/product';
+import { ShopParams } from './shared/models/shopParams';
 
 @Component({
   selector: 'app-root',
@@ -12,24 +14,12 @@ import { HeaderComponent } from "./layout/header/header.component";
 })
 export class AppComponent implements OnInit {
   title = 'skinet';
-
-  constructor(private basketService: BasketService) { }
+  products: Product[] = [];
+  shopService = inject(ShopService)
 
   ngOnInit(): void {
-    const basketId = localStorage.getItem('basket_id');
-
-    if (basketId) {
-      this.basketService.getBasket(basketId).subscribe(
-        //   () => {
-        //   console.log('initialized basket');
-        // }, error => {
-        //   console.log(error);
-        // }
-        {
-          next: () => console.log('itialized basket'),
-          error: (err) => console.error(err)
-        }
-      );
-    }
+    this.shopService.getProducts(new ShopParams()).subscribe(res => {
+      this.products = res
+    })
   }
 }

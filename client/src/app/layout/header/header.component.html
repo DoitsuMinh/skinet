@@ -1,1 +1,17 @@
-<header class="border-b p-3 w-full max-h-20 fixed">Header</header>
+<header class="fixed top-0 z-50 max-h-20 w-full border-b bg-white p-3 shadow-md">
+  <div class="mx-auto flex max-w-screen-2xl items-center justify-between align-middle">
+    <img routerLink="/" src="images/logo.png" alt="app logo" class="max-h-16" />
+    <nav class="my-2 flex gap-3 text-2xl uppercase">
+      <a routerLink="/" routerLinkActive="active">Home</a>
+      <a routerLink="/shop" routerLinkActive="active">Shop</a>
+      <a routerLink="/test-error" routerLinkActive="active">Errors</a>
+    </nav>
+    <div class="flex gap-3 align-middle">
+      <a matBadge="5" matBadgeSize="large" class="custom-badge mr-2 mt-2">
+        <mat-icon>shopping_cart</mat-icon>
+      </a>
+      <button mat-stroked-button>Login</button>
+      <button mat-stroked-button>Register</button>
+    </div>
+  </div>
+</header>

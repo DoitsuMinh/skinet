@@ -1,2 +1,66 @@
-@use "tailwindcss";
+@use '@angular/material' as mat;
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+$customTheme: mat.define-theme();
+
+@include mat.core();
+
+.custom-theme {
+  @include mat.all-component-themes($customTheme);
+
+  // override the button styles
+  .mdc-button,
+  .mdc-raised-button,
+  .mdc-stroked-button,
+  .mdc-flat-button {
+    @apply rounded-md
+  }
+}
+
+.container {
+  @apply mx-auto max-w-screen-2xl
+}
+
+.text-primary {
+  color: #00dddd;
+}
+
+.text-secondary {
+  color: #ff9800;
+}
+
+button.match-input-height {
+  height: var(--mat-form-field-container-height) !important;
+}
+
+.mdc-notched-outline__notch {
+  border-right-style: none !important
+}
+
+/* Snackbar Styles */
+.mat-mdc-snack-bar-container.snack-error {
+  --mdc-snackbar-container-color: #e65100;
+  --mat-snack-bar-button-color: #fff;
+  --mdc-snackbar-supporting-text-color: #fff;
+}
+
+.mat-mdc-snack-bar-container.snack-success {
+  --mdc-snackbar-container-color: #009688;
+  --mat-snack-bar-button-color: #fff;
+  --mdc-snackbar-supporting-text-color: #fff;
+}
+
+.mat-mdc-snack-bar-container.snack-warning {
+  --mdc-snackbar-container-color: #f57c00;
+  --mat-snack-bar-button-color: #fff;
+  --mdc-snackbar-supporting-text-color: #fff;
+}
+
+.mat-mdc-snack-bar-container.snack-info {
+  --mdc-snackbar-container-color: #80deea;
+  --mat-snack-bar-button-color: #fff;
+  --mdc-snackbar-supporting-text-color: #fff;
+}
