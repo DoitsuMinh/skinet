@@ -11,14 +11,14 @@ namespace Insfrastructure.Identity
             {
                 var user = new AppUser() 
                 {
-                    DisplayName = "Bob",
-                    Email = "bob@test.com",
-                    UserName = "bob@test.com",
+                    DisplayName = "Jason",
+                    Email = "jason@test.com",
+                    UserName = "jason@test.com",
                     Address = new Address
                     {
-                        FirstName = "Bob",
-                        LastName = "Stark",
-                        Street = "Nguyen Huu Tho",
+                        FirstName = "Jason",
+                        LastName = "Vu",
+                        Street = ".",
                         City = "HCM City"
                     }
                 };

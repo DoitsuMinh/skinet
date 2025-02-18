@@ -17,10 +17,10 @@ namespace API.Errors
         {
             return statusCode switch
             {
-                400 => "A bad request, YOU have made",
-                401 => "Authorized, YOU are not",
-                404 => "Resouce found, IT was not",
-                500 => "Appreciate for ignoring any inconvenience",
+                400 => "Suffering from a BAD request T.T",
+                401 => "Authorization failed, YOU shall not pass X_X",
+                404 => "Resouce found, NOTHING",
+                500 => "Appreciate for IGNORING any inconvenience",
                 _ => null
             };
         }

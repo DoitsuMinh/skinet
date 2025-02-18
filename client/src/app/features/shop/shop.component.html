@@ -18,9 +18,7 @@
           <mat-icon matSuffix>search</mat-icon>
           <mat-autocomplete #auto="matAutocomplete">
             @for (fProduct of filteredProducts(); track fProduct.id) {
-              <mat-option
-                [value]="fProduct.id"
-                [innerHTML]="'<span>' + fProduct.htmlContent + '</span>'"></mat-option>
+              <mat-option [value]="fProduct.id" [innerHTML]="fProduct.htmlContent"></mat-option>
             }
           </mat-autocomplete>
         </mat-form-field>

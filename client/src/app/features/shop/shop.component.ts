@@ -103,7 +103,6 @@ export class ShopComponent {
         (newProduct) => !products.some((existingProduct) => existingProduct.id === newProduct.id)
       );
       newProducts.map(x => { x.htmlContent = this.handleHtmlContent(x.name, seachValue) });
-      console.log(newProducts)
       // Append the new products to the existing products and return the updated array.
       return [...products, ...newProducts];
     });
@@ -113,6 +112,6 @@ export class ShopComponent {
     if (!searchValue.trim()) return content;
 
     const regex = new RegExp(`(${searchValue})`, 'gi'); // Case-insensitive match
-    return content.replace(regex, '<strong>$1</strong>');
+    return '<span>' + content.replace(regex, '<strong>$1</strong>') + '</span>';
   }
 }

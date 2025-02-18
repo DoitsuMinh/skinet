@@ -6,5 +6,6 @@ namespace Core.Enitities.Identity
     {
         public string DisplayName { get; set; }
         public Address Address { get; set; }
+        public virtual ICollection<IdentityUserClaim<string>> Claims { get; set; }
     }
 }

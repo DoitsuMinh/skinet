@@ -56,39 +56,43 @@ namespace API
 }
  
  */
-using Microsoft.EntityFrameworkCore;
+using API.Extensions;
 using API.Helpers;
 using API.Middleware;
-using API.Extensions;
-using StackExchange.Redis;
-using Insfrastructure.Identity;
-using Insfrastructure.Data;
 using Core.Enitities.Identity;
+using Insfrastructure.Data;
+using Insfrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<StoreContext>(c =>
-    c.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+#region Configure Database Connection
+var productConnString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<StoreContext>(c => c.UseSqlite(productConnString));
 
-builder.Services.AddDbContext<AppIdentityDbContext>(x =>
-    x.UseSqlite(builder.Configuration.GetConnectionString("IdentityConnection")));
+var identityConnString = builder.Configuration.GetConnectionString("IdentityConnection");
+builder.Services.AddDbContext<AppIdentityDbContext>(x => x.UseSqlite(identityConnString));
+#endregion
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(c =>
 {
-    var configuration = ConfigurationOptions.Parse(builder.Configuration
-        .GetConnectionString("Redis"), true);
+    var configuration = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis"), true);
     return ConnectionMultiplexer.Connect(configuration);
 });
 
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
+#region Configure Identity 
+builder.Services.AddIdentityServices(builder.Configuration);
+#endregion
+
 builder.Services.AddApplicationServices();
 
-builder.Services.AddIdentityServices(builder.Configuration);
 
 // Cross-origin resource sharing
 builder.Services.AddCors(opt =>
