@@ -40,7 +40,7 @@ namespace API.Controllers
 
             var data = _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products);
 
-            return Ok(data);
+            return Ok(new Pagination<ProductToReturnDto>(productParams.PageIndex, productParams.PageSize, totalItems, data));
         }
 
         [HttpGet("{id}")]
@@ -67,6 +67,14 @@ namespace API.Controllers
         public async Task<ActionResult<IReadOnlyList<ProductType>>> GetProductTypes()
         {
             return Ok(await _productTypeRepo.ListAllAsync());
+        }
+
+        [HttpGet("filtered-products")]
+        public async Task<ActionResult<IReadOnlyList<ProductDictDto>>> GetProductsBySearchValue(string searchValue = "")
+        {
+            var spec = new ProductsWithProductNameSpecification(searchValue);
+            var products = await _productsRepo.ListAsync(spec);
+            return Ok(_mapper.Map<IReadOnlyList<ProductDictDto>>(products));
         }
     }
 }

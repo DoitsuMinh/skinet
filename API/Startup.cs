@@ -16,7 +16,6 @@ namespace API
             _config = config;
         }
 
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -40,7 +39,6 @@ namespace API
             services.AddApplicationServices();
 
             services.AddIdentityServices(_config);
-            services.AddSwaggerDocumentation();
 
             //cross-origin resource sharing
             services.AddCors(opt =>
@@ -56,8 +54,6 @@ namespace API
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseMiddleware<ExceptionMiddleware>();
-
-            app.UseSwaggerDocumentation();
 
             app.UseStatusCodePagesWithReExecute("/errors/{0}");
 

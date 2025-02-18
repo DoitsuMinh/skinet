@@ -9,6 +9,13 @@ namespace API.Middleware
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionMiddleware> _logger;
         private readonly IHostEnvironment _env;
+
+        // Cached JsonSerializerOptions instance
+        private static readonly JsonSerializerOptions _jsonOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
         public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger,
             IHostEnvironment env)
         {
@@ -27,7 +34,8 @@ namespace API.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "An unhandled exception occurred: {ErrorMessage}", ex.Message);
+
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
@@ -35,13 +43,8 @@ namespace API.Middleware
                     ? new ApiException((int)HttpStatusCode.InternalServerError, ex.Message, ex.StackTrace.ToString())
                     : new ApiException((int)HttpStatusCode.InternalServerError);
 
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
-
                 //serialize status
-                var json = JsonSerializer.Serialize(response, options);
+                var json = JsonSerializer.Serialize(response, _jsonOptions);
 
                 await context.Response.WriteAsync(json);
             }

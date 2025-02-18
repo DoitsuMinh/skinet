@@ -1,25 +1,16 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { HeaderComponent } from "./layout/header/header.component";
-import { ShopService } from './core/services/shop.service';
-import { Product } from './models/product';
-import { ShopParams } from './shared/models/shopParams';
+import { ShopComponent } from "./features/shop/shop.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent],
+  imports: [HeaderComponent, ShopComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
   title = 'skinet';
-  products: Product[] = [];
-  shopService = inject(ShopService)
 
-  ngOnInit(): void {
-    this.shopService.getProducts(new ShopParams()).subscribe(res => {
-      this.products = res
-    })
-  }
+  ngOnInit(): void { }
 }
