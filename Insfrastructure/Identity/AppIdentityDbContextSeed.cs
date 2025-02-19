@@ -29,11 +29,10 @@ namespace Insfrastructure.Identity
                     
                 };
                 customerUser.PasswordHash = hasher.HashPassword(customerUser, "cust@123");
-                await userManager.CreateAsync(customerUser);
 
                 var adminUser = new AppUser()
                 {
-                    Id = "1",
+                    Id = "2",
                     DisplayName = "Sir Admin",
                     Email = "admin@test.com",
                     UserName = "admin@test.com",
@@ -48,11 +47,10 @@ namespace Insfrastructure.Identity
 
                 };
                 adminUser.PasswordHash = hasher.HashPassword(adminUser, "admin@123");
-                await userManager.CreateAsync(adminUser);
 
                 var spAdminUser = new AppUser()
                 {
-                    Id = "2",
+                    Id = "1",
                     DisplayName = "Sir SpAdmin",
                     Email = "spadmin@test.com",
                     UserName = "spadmin@test.com",
@@ -67,7 +65,10 @@ namespace Insfrastructure.Identity
 
                 };
                 spAdminUser.PasswordHash = hasher.HashPassword(spAdminUser, "spadmin@123");
+
                 await userManager.CreateAsync(spAdminUser);
+                await userManager.CreateAsync(adminUser);
+                await userManager.CreateAsync(customerUser);
             }
         }
 
@@ -85,23 +86,33 @@ namespace Insfrastructure.Identity
 
         public static async Task SeedRoleClaimsAsync(RoleManager<IdentityRole> roleManager)
         {
-            var adminRole = await roleManager.FindByNameAsync("Admin");
-            if (adminRole != null)
-            {
-                await roleManager.AddClaimAsync(adminRole, new Claim("Permission", "CanManageUsers"));
-                await roleManager.AddClaimAsync(adminRole, new Claim("Permission", "CanEdit"));
-            }
-
             var spAdminRole = await roleManager.FindByNameAsync("SpAdmin");
             if (spAdminRole != null)
             {
-                await roleManager.AddClaimAsync(spAdminRole, new Claim("Permission", "CanEdit"));
+                await roleManager.AddClaimAsync(spAdminRole, new Claim("Products", "Manage"));
+                await roleManager.AddClaimAsync(spAdminRole, new Claim("Products", "Delete"));
+                await roleManager.AddClaimAsync(spAdminRole, new Claim("Users", "Manage"));
+                await roleManager.AddClaimAsync(spAdminRole, new Claim("Orders", "Manage"));
+                await roleManager.AddClaimAsync(spAdminRole, new Claim("Orders", "View"));
+                await roleManager.AddClaimAsync(spAdminRole, new Claim("Settings", "Manage"));
+
+            }
+
+            var adminRole = await roleManager.FindByNameAsync("Admin");
+            if (adminRole != null)
+            {
+                await roleManager.AddClaimAsync(adminRole, new Claim("Products", "Create"));
+                await roleManager.AddClaimAsync(adminRole, new Claim("Products", "Edit"));
+                await roleManager.AddClaimAsync(adminRole, new Claim("Orders", "Manage"));
+                await roleManager.AddClaimAsync(adminRole, new Claim("Orders", "View"));
             }
 
             var customerRole = await roleManager.FindByNameAsync("Customer");
             if (customerRole != null)
             {
-                await roleManager.AddClaimAsync(customerRole, new Claim("Permission", "CanViewOrders"));
+                await roleManager.AddClaimAsync(customerRole, new Claim("Orders", "View"));
+                await roleManager.AddClaimAsync(customerRole, new Claim("Orders", "Create"));
+                await roleManager.AddClaimAsync(customerRole, new Claim("Profile", "Edit"));
             }
         }
 
