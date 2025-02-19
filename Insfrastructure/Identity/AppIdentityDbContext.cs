@@ -23,14 +23,6 @@ namespace Insfrastructure.Identity
             // Call the base class implementation
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<AppUser>(b =>
-            {
-                // Each User can have many UserClaims
-                b.HasMany(e => e.Claims)
-                    .WithOne()
-                    .HasForeignKey(uc => uc.UserId)
-                    .IsRequired();
-            });
         }
     }
 }

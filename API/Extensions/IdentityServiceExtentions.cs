@@ -16,6 +16,7 @@ namespace API.Extensions
             var builder = services.AddIdentity<AppUser, IdentityRole>();
 
             builder = new IdentityBuilder(builder.UserType, builder.Services);
+            builder.AddRoles<IdentityRole>();
             builder.AddEntityFrameworkStores<AppIdentityDbContext>();
             builder.AddDefaultTokenProviders();
             builder.AddSignInManager();
@@ -30,7 +31,7 @@ namespace API.Extensions
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Token:Key"])),
-                        ValidIssuer = config["Token:Issuer"],                        
+                        ValidIssuer = config["Token:Issuer"],
                         ValidAudience = config["Token:Audience"]
                     };
                 });

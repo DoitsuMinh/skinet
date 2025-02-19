@@ -105,27 +105,7 @@ builder.Services.AddCors(opt =>
 
 var app = builder.Build();
 // Apply migrations and seed data
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
-    try
-    {
-        var context = services.GetRequiredService<StoreContext>();
-        await context.Database.MigrateAsync();
-        await StoreContextSeed.SeedAsyn(context, loggerFactory);
-
-        var userManager = services.GetRequiredService<UserManager<AppUser>>();
-        var identityContext = services.GetRequiredService<AppIdentityDbContext>();
-        await identityContext.Database.MigrateAsync();
-        await AppIdentityDbContextSeed.SeedUserAsync(userManager);
-    }
-    catch (Exception ex)
-    {
-        var logger = loggerFactory.CreateLogger<Program>();
-        logger.LogError(ex, "An error occurred during migration");
-    }
-}
+await app.MigrateAndSeedDatabase();
 
 // Configure the HTTP request pipeline.
 app.UseMiddleware<ExceptionMiddleware>();

@@ -19,10 +19,7 @@ namespace Insfrastructure.Data
                     var brands = JsonSerializer.Deserialize<List<ProductBrand>>(brandData);
 
                     //add to db via context
-                    foreach (var item in brands)
-                    {
-                        context.ProductBrands.Add(item);
-                    }
+                    context.ProductBrands.AddRange(brands);
 
                     await context.SaveChangesAsync();
                 }
@@ -36,10 +33,7 @@ namespace Insfrastructure.Data
                     var types = JsonSerializer.Deserialize<List<ProductType>>(typeData);
 
                     //add to db via context
-                    foreach (var item in types)
-                    {
-                        context.ProductTypes.Add(item);
-                    }
+                    context.ProductTypes.AddRange(types);                    
 
                     await context.SaveChangesAsync();
                 }
@@ -53,10 +47,7 @@ namespace Insfrastructure.Data
                     var products = JsonSerializer.Deserialize<List<Product>>(productData);
 
                     //add to db via context
-                    foreach (var item in products)
-                    {
-                        context.Products.Add(item);
-                    }
+                    context.Products.AddRange(products);                    
 
                     await context.SaveChangesAsync();
                 }
