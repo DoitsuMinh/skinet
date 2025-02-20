@@ -18,12 +18,13 @@ namespace Insfrastructure.Services
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Token:Key"]));
         }
 
-        public string CreateToken(AppUser user)
+        public string CreateToken(AppUser user,string userRole)
         {
             var claims = new List<Claim>
             {
                 new (ClaimTypes.Email, user.Email),
-                new (ClaimTypes.GivenName, user.DisplayName)
+                new (ClaimTypes.GivenName, user.DisplayName),
+                new (ClaimTypes.Role, userRole)
             };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);

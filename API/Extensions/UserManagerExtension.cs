@@ -1,7 +1,7 @@
-using System.Security.Claims;
 using Core.Enitities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace API.Extensions
 {
@@ -15,12 +15,14 @@ namespace API.Extensions
             return await input.Users.Include(x => x.Address).SingleOrDefaultAsync(x => x.Email == email);
         }
 
-        public static async Task<AppUser> FindByEmailFromClaimsPrinciple(this UserManager<AppUser>
+        public static async Task<(AppUser, string userRole)> FindByEmailFromClaimsPrinciple(this UserManager<AppUser>
             input, ClaimsPrincipal user)
-            {
-                var email = user.FindFirstValue(ClaimTypes.Email);
+        {
+            var email = user.FindFirstValue(ClaimTypes.Email);
 
-                return await input.Users.SingleOrDefaultAsync(x => x.Email == email);
-            }
+            var appUser = await input.Users.SingleOrDefaultAsync(x => x.Email == email);
+            var role = await input.GetRolesAsync(appUser);
+            return (appUser, role[0]);
+        }
     }
 }

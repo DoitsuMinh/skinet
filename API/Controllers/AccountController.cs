@@ -31,11 +31,11 @@ namespace API.Controllers
         public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
 
-            var user = await _userManager.FindByEmailFromClaimsPrinciple(User);
+            var (user, userRole) = await _userManager.FindByEmailFromClaimsPrinciple(User);
             return new UserDto
             {
                 Email = user.Email,
-                Token = _tokenService.CreateToken(user),
+                Token = _tokenService.CreateToken(user, userRole),
                 DisplayName = user.DisplayName
             };
         }
@@ -79,32 +79,43 @@ namespace API.Controllers
 
             if(!result.Succeeded) return Unauthorized(new ApiResponse(401));
 
+            var userRoles = await _userManager.GetRolesAsync(user);
+            if (!userRoles.Any())
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse(500, "Missing user role. WHY ?"));
+            }
+
+
+            var userRole = userRoles.FirstOrDefault();
+            var userToken = _tokenService.CreateToken(user, userRole);
+
             return new UserDto
             {
                 Email = user.Email,
-                Token = _tokenService.CreateToken(user),
-                DisplayName = user.DisplayName
+                Token = userToken,
+                DisplayName = user.DisplayName,
+                Role = userRole
             };
         }
 
-        [HttpPost("register")]
-        public async Task<ActionResult<UserDto>> Register([FromBody] RegisterDto registerDto)
+        [HttpPost("customer-register")]
+        public async Task<ActionResult<UserDto>> CustomerRegister([FromBody] RegisterDto registerDto)
         {
             var user = new AppUser
             {
                 DisplayName = registerDto.DisplayName,
                 Email = registerDto.Email,
-                UserName = registerDto.Email
+                UserName = registerDto.Email,
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
-
             if(!result.Succeeded) return BadRequest(new ApiResponse(400));
+
 
             return new UserDto
             {
                 DisplayName = user.DisplayName,
-                Token = _tokenService.CreateToken(user),
+                Token = _tokenService.CreateToken(user, "Customer"),
                 Email = user.Email
             };
         }

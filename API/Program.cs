@@ -59,10 +59,8 @@ namespace API
 using API.Extensions;
 using API.Helpers;
 using API.Middleware;
-using Core.Enitities.Identity;
 using Insfrastructure.Data;
 using Insfrastructure.Identity;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 

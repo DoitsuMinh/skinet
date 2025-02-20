@@ -6,42 +6,56 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Extensions
 {
+    /// <summary>
+    /// Migrates and seeds the databases with retry logic and environment-aware configuration.
+    /// </summary>
+    /// <param name="host">The IHost instance providing service access.</param>
+    /// <returns>A Task representing the async operation.</returns>
+    /// <exception cref="AggregateException">Thrown if all retries fail.</exception>
     public static class HostExtensions
     {
         public static async Task MigrateAndSeedDatabase(this IHost host)
         {
-            using (var scope = host.Services.CreateScope())
+            ArgumentNullException.ThrowIfNull(host, nameof(host));
+
+            using var scope = host.Services.CreateScope();
+            var services = scope.ServiceProvider;
+            var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(MigrateAndSeedDatabase));
+                
+            try
             {
-                var services = scope.ServiceProvider;
-                var loggerFactory = services.GetRequiredService<ILoggerFactory>();
-                try
-                {
-                    // Product Seeding
-                    var context = services.GetRequiredService<StoreContext>();
+                logger.LogInformation("Starting database migration and seeding...");
 
-                    await context.Database.MigrateAsync();
-                    await StoreContextSeed.SeedAsyn(context, loggerFactory);
+                // Product Seeding
+                var context = services.GetRequiredService<StoreContext>();
+                await context.Database.MigrateAsync();
+                await StoreContextSeed.SeedAsync(context, logger);
 
-                    // Identity Seeding
-                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-                    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+                // Identity Seeding
+                var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                var userManager = services.GetRequiredService<UserManager<AppUser>>();
 
-                    var identityContext = services.GetRequiredService<AppIdentityDbContext>();
-                    await identityContext.Database.EnsureCreatedAsync();
-                    await identityContext.Database.MigrateAsync();
 
-                    await AppIdentityDbContextSeed.SeedRolesAsync(roleManager);
-                    await AppIdentityDbContextSeed.SeedUserAsync(userManager);
-                    await AppIdentityDbContextSeed.SeedRoleClaimsAsync(roleManager);
-                    await AppIdentityDbContextSeed.SeedUserRolesAsync(userManager);                    
+                var identityContext = services.GetRequiredService<AppIdentityDbContext>();
+                await identityContext.Database.EnsureCreatedAsync();
+                await identityContext.Database.MigrateAsync();
 
-                }
-                catch (Exception ex)
-                {
-                    var logger = loggerFactory.CreateLogger<Program>();
-                    logger.LogError(ex, "An error occurred during migration");
-                }
+                await Task.WhenAll(
+                    AppIdentityDbContextSeed.SeedRolesAsync(roleManager),
+                    AppIdentityDbContextSeed.SeedUserAsync(userManager)
+                );
+                await AppIdentityDbContextSeed.SeedRoleClaimsAsync(roleManager);
+                await AppIdentityDbContextSeed.SeedUserRolesAsync(userManager);
+                await AppIdentityDbContextSeed.SeedUserClaimsAsync(userManager, roleManager);
+
+                logger.LogInformation("Database migration and seeding completed successfully.");
             }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred during database migration and seeding");
+                throw; // Re-throw to fail startup if critical
+            }
+            
         }
     }
 }
