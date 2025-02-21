@@ -21,6 +21,11 @@ namespace API.Extensions
             builder.AddDefaultTokenProviders();
             builder.AddSignInManager();
 
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+            });
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {

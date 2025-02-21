@@ -1,7 +1,8 @@
 using Core.Enitities.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-/* DOC
+/* DOC:
  * .NET 9 ASP.NET Core Identity - Identity model customization in ASP.NET Core
  * https://learn.microsoft.com/en-us/aspnet/core/security/authentication/customize-identity-model?view=aspnetcore-9.0
  */
@@ -14,14 +15,19 @@ namespace Insfrastructure.Identity
 
         }
 
-        // This method is used to configure the model that was discovered by convention from the entity types
-        // exposed in DbSet<TEntity> properties on your derived context. The base implementation of this method
-        // does nothing, but it can be overridden in a derived class such that the model can be further configured
-        // before it is locked down.
+        /// <summary>
+        /// This method is called when the model for a derived context has been initialized 
+        /// </summary>
+        /// <param name="modelBuilder"></param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Call the base class implementation
             base.OnModelCreating(modelBuilder);
+            // Map AppUserToken to AspNetUserTokens
+            modelBuilder.Entity<AppUserToken>(entity =>
+            {
+                entity.Property(p => p.ExpiredDate).IsRequired().HasDefaultValue(DateTime.UtcNow.AddDays(1));
+            });
 
         }
     }

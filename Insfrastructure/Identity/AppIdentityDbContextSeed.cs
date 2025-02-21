@@ -20,7 +20,6 @@ namespace Insfrastructure.Identity
         /// Seed users
         /// </summary>
         /// <param name="userManager"></param>
-        /// <returns></returns>
         public static async Task SeedUserAsync(UserManager<AppUser> userManager)
         {
             if (userManager.Users.Any()) return;
@@ -85,6 +84,10 @@ namespace Insfrastructure.Identity
             await userManager.CreateAsync(customerUser);
         }
 
+        /// <summary>
+        /// Seed roles
+        /// </summary>
+        /// <param name="roleManager"></param>
         public static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
         {
             if (roleManager.Roles.Any()) return;
@@ -102,46 +105,37 @@ namespace Insfrastructure.Identity
         /// Seed role claims
         /// </summary>
         /// <param name="roleManager"></param>
-        /// <returns></returns>
         public static async Task SeedRoleClaimsAsync(RoleManager<IdentityRole> roleManager)
         {
-            var spAdminRole = await roleManager.FindByNameAsync("SpAdmin");
-            if (spAdminRole != null)
+            foreach (var mapping in UserRoleMappings)
             {
-                var spAdminClaims = await roleManager.GetClaimsAsync(spAdminRole);
-                if (!spAdminClaims.Any())
+                var userRole = await roleManager.FindByNameAsync(mapping.Value);
+                if (userRole == null) break;
+                
+                var userRoleClaims = await roleManager.GetClaimsAsync(userRole);
+                if (userRoleClaims.Any()) break;
+                
+                if (userRole.NormalizedName == "SPADMIN")
                 {
-                    await roleManager.AddClaimAsync(spAdminRole, new Claim("Products", "Manage"));
-                    await roleManager.AddClaimAsync(spAdminRole, new Claim("Products", "Delete"));
-                    await roleManager.AddClaimAsync(spAdminRole, new Claim("Users", "Manage"));
-                    await roleManager.AddClaimAsync(spAdminRole, new Claim("Orders", "Manage"));
-                    await roleManager.AddClaimAsync(spAdminRole, new Claim("Orders", "View"));
-                    await roleManager.AddClaimAsync(spAdminRole, new Claim("Settings", "Manage"));
+                    await roleManager.AddClaimAsync(userRole, new Claim("Products", "Manage"));
+                    await roleManager.AddClaimAsync(userRole, new Claim("Products", "Delete"));
+                    await roleManager.AddClaimAsync(userRole, new Claim("Users", "Manage"));
+                    await roleManager.AddClaimAsync(userRole, new Claim("Orders", "Manage"));
+                    await roleManager.AddClaimAsync(userRole, new Claim("Orders", "View"));
+                    await roleManager.AddClaimAsync(userRole, new Claim("Settings", "Manage"));
                 }
-            }
-
-            var adminRole = await roleManager.FindByNameAsync("Admin");
-            if (adminRole != null)
-            {
-                var adminRoleClaims = await roleManager.GetClaimsAsync(adminRole);
-                if (!adminRoleClaims.Any())
+                else if (userRole.NormalizedName == "ADMIN")
                 {
-                    await roleManager.AddClaimAsync(adminRole, new Claim("Products", "Create"));
-                    await roleManager.AddClaimAsync(adminRole, new Claim("Products", "Edit"));
-                    await roleManager.AddClaimAsync(adminRole, new Claim("Orders", "Manage"));
-                    await roleManager.AddClaimAsync(adminRole, new Claim("Orders", "View"));
+                    await roleManager.AddClaimAsync(userRole, new Claim("Products", "Create"));
+                    await roleManager.AddClaimAsync(userRole, new Claim("Products", "Edit"));
+                    await roleManager.AddClaimAsync(userRole, new Claim("Orders", "Manage"));
+                    await roleManager.AddClaimAsync(userRole, new Claim("Orders", "View"));
                 }
-            }
-
-            var customerRole = await roleManager.FindByNameAsync("Customer");
-            if (customerRole != null)
-            {
-                var customerRoleClaims = await roleManager.GetClaimsAsync(customerRole);
-                if (!customerRoleClaims.Any())
+                else if (userRole.NormalizedName == "CUSTOMER")
                 {
-                    await roleManager.AddClaimAsync(customerRole, new Claim("Orders", "View"));
-                    await roleManager.AddClaimAsync(customerRole, new Claim("Orders", "Create"));
-                    await roleManager.AddClaimAsync(customerRole, new Claim("Profile", "Edit"));
+                    await roleManager.AddClaimAsync(userRole, new Claim("Orders", "View"));
+                    await roleManager.AddClaimAsync(userRole, new Claim("Orders", "Create"));
+                    await roleManager.AddClaimAsync(userRole, new Claim("Profile", "Edit"));
                 }
             }
         }
@@ -150,7 +144,6 @@ namespace Insfrastructure.Identity
         /// Seed user roles
         /// </summary>
         /// <param name="userManager"></param>
-        /// <returns></returns>
         public static async Task SeedUserRolesAsync(UserManager<AppUser> userManager)
         {
             foreach (var mapping in UserRoleMappings)
@@ -177,7 +170,6 @@ namespace Insfrastructure.Identity
         /// </summary>
         /// <param name="userManager"></param>
         /// <param name="roleManager"></param>
-        /// <returns></returns>
         public static async Task SeedUserClaimsAsync(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             foreach (var mapping in UserRoleMappings)
