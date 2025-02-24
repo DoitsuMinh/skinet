@@ -1,4 +1,5 @@
 using API.Dtos;
+using API.Enums;
 using API.Errors;
 using API.Extensions;
 using AutoMapper;
@@ -7,6 +8,7 @@ using Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using static API.Enums.AccountTypeEnums;
 
 namespace API.Controllers
 {
@@ -28,19 +30,20 @@ namespace API.Controllers
             _authenticationService = authenticationService;
         }
 
-        //[Authorize]
-        //[HttpGet]
-        //public async Task<ActionResult<UserDto>> GetCurrentUser()
-        //{
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<UserDto>> GetCurrentUser()
+        {
 
-        //    var (user, userRole) = await _userManager.FindByEmailFromClaimsPrinciple(User);
-        //    return new UserDto
-        //    {
-        //        Email = user.Email,
-        //        Token = _tokenService.CreateToken(user, userRole),
-        //        DisplayName = user.DisplayName
-        //    };
-        //}
+            var (user, userRole) = await _userManager.FindByEmailFromClaimsPrinciple(User);
+            return new UserDto
+            {
+                Email = user.Email,
+                Token = "",
+                DisplayName = user.DisplayName,
+                Role = userRole
+            };
+        }
 
         //[HttpGet("emailexists")]
         //public async Task<ActionResult<bool>> CheckEmailExistAsync([FromQuery] string email)
@@ -78,6 +81,7 @@ namespace API.Controllers
         /// <response code="401">Invalid credentials or missing user role.</response>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
@@ -92,11 +96,20 @@ namespace API.Controllers
             var userRoleResult = await _authenticationService.GetUserRoleAsync(user);
             if (!userRoleResult.IsSuccess)
             {
-                return Unauthorized(new ApiResponse(401));
+                return Unauthorized(new ApiResponse(401, userRoleResult.Error ?? null));
+            }
+
+            var refreshTokenResult = await _authenticationService.ValidateRefreshTokenAsync(user);
+            if (!refreshTokenResult.IsSuccess)
+            {
+                return Unauthorized(new ApiResponse(401, refreshTokenResult.Error ?? null));
             }
 
             var userRole = userRoleResult.Value;
             var userToken = _tokenService.CreateToken(user, userRole);
+
+            await _signInManager.SignInAsync(user, isPersistent: false);
+
 
             return Ok(new UserDto
             {
@@ -107,7 +120,13 @@ namespace API.Controllers
             });
         }
 
-        [HttpPost("customer-register")]
+        /// <summary>
+        /// Registers a new customer and returns their details with an access token.
+        /// </summary>
+        /// <param name="registerDto"></param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+        [HttpPost("register")]
         public async Task<ActionResult<UserDto>> CustomerRegister([FromBody] RegisterDto registerDto)
         {
             var user = new AppUser
@@ -117,15 +136,42 @@ namespace API.Controllers
                 UserName = registerDto.Email,
             };
 
-            var result = await _userManager.CreateAsync(user, registerDto.Password);
-            if (!result.Succeeded) return BadRequest(new ApiResponse(400));
+            var registerResult = await _authenticationService.RegisterByPassAsync(user, registerDto.Password,registerDto.Role, isPersistent: true);
 
-            return new UserDto
+            if (!registerResult.IsSuccess) return BadRequest(new ApiResponse(400, registerResult.Error
+                                                                                  ?? null));
+
+            return Ok(new UserDto
             {
                 DisplayName = user.DisplayName,
-                Token = _tokenService.CreateToken(user, "Customer"),
-                Email = user.Email
+                Token = _tokenService.CreateAccessToken(user, registerDto.Role),
+                Email = user.Email,
+                Role = registerDto.Role
+            });
+        }
+
+        [HttpPost("logout")]
+        [Authorize]
+        public async Task<IActionResult> LogOut(UserDto userDto)
+        {
+            var user = new AppUser
+            {
+                DisplayName = userDto.DisplayName,
+                Email = userDto.Email,
+                UserName = userDto.Email,
             };
+            var currentUser = await _signInManager.UserManager.GetUserAsync(User);
+            if (currentUser == null) return BadRequest(new ApiResponse(400, "User already not logged in"));
+
+            var refreshTokenResult = await _authenticationService.ValidateRefreshTokenAsync(currentUser);
+            if (!refreshTokenResult.IsSuccess)
+            {
+                return Unauthorized(new ApiResponse(401, refreshTokenResult.Error ?? null));
+            } 
+
+            await _signInManager.SignOutAsync();
+            await _authenticationService.ClearRefreshTokenAsync(user);
+            return Ok();            
         }
     }
 }

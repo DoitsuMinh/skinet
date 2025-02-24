@@ -1,13 +1,15 @@
 ﻿using Core.Enitities.Identity;
 using Core.Interfaces;
+using Insfrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Insfrastructure.Data
 {
-    public class RefreshTokenRepository(ITokenService tokenService, UserManager<AppUser> userManager) : IRefreshTokenRepository
+    public class RefreshTokenRepository(UserManager<AppUser> userManager, AppIdentityDbContext identityDbContext) : IRefreshTokenRepository
     {
-        private readonly ITokenService _tokenService = tokenService;
         private readonly UserManager<AppUser> _userManager = userManager;
+        private readonly AppIdentityDbContext _identityDbContext = identityDbContext;
         private const string LOGIN_PROVIDER = "Identity";
         private const string TOKEN_NAME = "RefreshToken";
 
@@ -15,18 +17,19 @@ namespace Insfrastructure.Data
         /// Generate a refresh token for the user
         /// </summary>
         /// <param name="user"></param>
-        public async Task SetRefreshTokenAsync(AppUser user, string refreshToken)
+        public async Task<bool> AddRefreshTokenAsync(AppUser user, string refreshToken)
         {
-            await _userManager.SetAuthenticationTokenAsync(user, LOGIN_PROVIDER, TOKEN_NAME, refreshToken);
-        }
+            if (user.Id == null) return false;
 
-        /// <summary>
-        /// Revoke the refresh token for the user
-        /// </summary>
-        /// <param name="user"></param>
-        public async Task RevokeRefreshTokenAsync(AppUser user)
-        {
-            await _userManager.RemoveAuthenticationTokenAsync(user, LOGIN_PROVIDER, TOKEN_NAME);
+            var result = await _identityDbContext.Set<AppUserToken>().AddAsync(new AppUserToken
+            {
+                UserId = user.Id,
+                LoginProvider = LOGIN_PROVIDER,
+                Name = TOKEN_NAME,
+                Value = refreshToken,
+                ExpiredDate = DateTime.UtcNow.AddDays(1)
+            });
+            return await _identityDbContext.SaveChangesAsync() > 0;
         }
 
         /// <summary>
@@ -34,10 +37,10 @@ namespace Insfrastructure.Data
         /// </summary>
         /// <param name="user"></param>
         /// <param name="refreshToken"></param>
-        public async Task<bool> ValidateRefreshTokenAsync(AppUser user, string refreshToken)
+        public async Task<bool> ValidateRefreshTokenAsync(AppUser user)
         {
-            var storedToken = await _userManager.GetAuthenticationTokenAsync(user, LOGIN_PROVIDER, TOKEN_NAME);
-            return storedToken == refreshToken && !string.IsNullOrEmpty(storedToken);
+            var storedToken = await _identityDbContext.Set<AppUserToken>().FirstOrDefaultAsync(x => x.UserId == user.Id && x.LoginProvider == LOGIN_PROVIDER && x.Name == TOKEN_NAME);
+            return storedToken != null && !string.IsNullOrEmpty(storedToken.Value);
         }
     }
 }

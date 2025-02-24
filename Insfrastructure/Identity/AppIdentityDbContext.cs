@@ -28,7 +28,6 @@ namespace Insfrastructure.Identity
             {
                 entity.Property(p => p.ExpiredDate).IsRequired().HasDefaultValue(DateTime.UtcNow.AddDays(1));
             });
-
         }
     }
 }

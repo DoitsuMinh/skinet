@@ -5,7 +5,7 @@ using System.Security.Claims;
 
 namespace API.Extensions
 {
-    public static class UserManagerExtension
+    public static class UserManagerExtensions
     {
         public static async Task<AppUser> FindByUserByClaimsPrincipleWithAddressAsync(this UserManager<AppUser>
             input, ClaimsPrincipal user)

@@ -28,7 +28,7 @@ namespace Insfrastructure.Identity
 
             var customerUser = new AppUser()
             {
-                Id = "3",
+                //Id = 3,
                 DisplayName = "Sir Customer",
                 Email = "customer@test.com",
                 UserName = "customer@test.com",
@@ -45,7 +45,7 @@ namespace Insfrastructure.Identity
 
             var adminUser = new AppUser()
             {
-                Id = "2",
+                //Id = 2,
                 DisplayName = "Sir Admin",
                 Email = "admin@skinetgroup.cc",
                 UserName = "admin@skinetgroup.cc",
@@ -63,7 +63,7 @@ namespace Insfrastructure.Identity
 
             var spAdminUser = new AppUser()
             {
-                Id = "1",
+                //Id = 1,
                 DisplayName = "Sir SpAdmin",
                 Email = "spadmin@skinetgroup.cc",
                 UserName = "spadmin@skinetgroup.cc",
