@@ -6,5 +6,6 @@ namespace Core.Interfaces
     {
         Task<bool> AddRefreshTokenAsync(AppUser user, string resfreshToken);
         Task<bool> ValidateRefreshTokenAsync(AppUser user);
+        Task<string> GetRefreshTokenAsync(AppUser user);
     }
 }

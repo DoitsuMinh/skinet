@@ -10,8 +10,7 @@ namespace API.Extensions
 {
     public static class IdentityServiceExtensions
     {
-        public static IServiceCollection AddIdentityServices(this IServiceCollection services,
-            IConfiguration config)
+        public static IServiceCollection AddIdentityServices(this IServiceCollection services)
         {
             var builder = services.AddIdentity<AppUser, IdentityRole>();
 
@@ -26,34 +25,7 @@ namespace API.Extensions
                 options.User.RequireUniqueEmail = true;
             });
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Token:Key"])),
-                        ValidIssuer = config["Token:Issuer"],
-                        ValidAudience = config["Token:Audience"]
-                    };
-
-                    options.Events = new JwtBearerEvents
-                    {
-                        OnAuthenticationFailed = context =>
-                        {
-                            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
-                            {
-                                context.Response.Headers.Append("Token-Expired", "true");
-                            }
-                            return Task.CompletedTask;
-                        }
-                    };
-                })
-                .AddCookie();
-
+           
             return services;
         }
     }

@@ -1,4 +1,5 @@
 using Core.Enitities.Identity;
+using System.Security.Claims;
 
 namespace Core.Interfaces
 {
@@ -6,6 +7,7 @@ namespace Core.Interfaces
     {
         string CreateToken(AppUser user, string userRole);
         string CreateAccessToken(AppUser user,string userRole);
-        string CreateRefreshToken();
+        string GenerateRefreshToken();
+        ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
     }
 }

@@ -19,17 +19,9 @@ namespace Insfrastructure.Data
         /// <param name="user"></param>
         public async Task<bool> AddRefreshTokenAsync(AppUser user, string refreshToken)
         {
-            if (user.Id == null) return false;
-
-            var result = await _identityDbContext.Set<AppUserToken>().AddAsync(new AppUserToken
-            {
-                UserId = user.Id,
-                LoginProvider = LOGIN_PROVIDER,
-                Name = TOKEN_NAME,
-                Value = refreshToken,
-                ExpiredDate = DateTime.UtcNow.AddDays(1)
-            });
-            return await _identityDbContext.SaveChangesAsync() > 0;
+            var setTokenResult = await _userManager.SetAuthenticationTokenAsync(user, LOGIN_PROVIDER, TOKEN_NAME, refreshToken);
+            
+            return setTokenResult.Succeeded;
         }
 
         /// <summary>
@@ -41,6 +33,12 @@ namespace Insfrastructure.Data
         {
             var storedToken = await _identityDbContext.Set<AppUserToken>().FirstOrDefaultAsync(x => x.UserId == user.Id && x.LoginProvider == LOGIN_PROVIDER && x.Name == TOKEN_NAME);
             return storedToken != null && !string.IsNullOrEmpty(storedToken.Value);
+        }
+
+        public async Task<string> GetRefreshTokenAsync(AppUser user)
+        {
+            var storedToken = await _identityDbContext.Set<AppUserToken>().FirstOrDefaultAsync(x => x.UserId == user.Id && x.LoginProvider == LOGIN_PROVIDER && x.Name == TOKEN_NAME);
+            return storedToken?.Value;
         }
     }
 }

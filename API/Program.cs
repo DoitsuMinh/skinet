@@ -27,16 +27,18 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(c =>
 
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
-#region Configure Identity (JWT and Cookie)
-builder.Services.AddIdentityServices(builder.Configuration);
+#region Configure Identity
+builder.Services.AddIdentityServices();
 #endregion
+
+builder.Services.AddJWTAuthenticationServices(builder.Configuration);
 
 #region Configure Appicaltion Services
 builder.Services.AddApplicationServices();
 #endregion
 
 #region Configure Cookie Service
-builder.Services.AddCookieServices();
+//builder.Services.AddCookieServices();
 #endregion
 
 // Cross-origin resource sharing

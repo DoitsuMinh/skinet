@@ -19,11 +19,18 @@ namespace Insfrastructure.Services
         public async Task<Result<AppUser>> ValidateLoginByPassAsync(string email, string password, bool isRememberPass)
         {
             var user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return Result<AppUser>.Failure("incorrect email");
+            if (user == null) return Result<AppUser>.Failure("Incorrect email");
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
             if (!result.Succeeded) return Result<AppUser>.Failure("Incorrect password");
 
+            return Result<AppUser>.Success(user);
+        }
+
+        public async Task<Result<AppUser>> GetUserByEmailAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return Result<AppUser>.Failure("Incorrect email");
             return Result<AppUser>.Success(user);
         }
 
@@ -39,24 +46,32 @@ namespace Insfrastructure.Services
         }
 
 
-        private async Task<Result<bool>> CreateRefreshTokenAsync(AppUser user)
+        public async Task<Result<string>> CreateRefreshTokenAsync(AppUser user)
         {
-            var refreshToken = _tokenService.CreateRefreshToken();
+            var refreshToken = _tokenService.GenerateRefreshToken();
             var result = await _refreshTokenRepo.AddRefreshTokenAsync(user, refreshToken);
-            if (!result) return Result<bool>.Failure("Failed to create refresh token");
-            return Result<bool>.Success(true);
+            if (!result) return Result<string>.Failure("Failed to create refresh token");
+            return Result<string>.Success(refreshToken);
         }
 
         public async Task<Result<bool>> ValidateRefreshTokenAsync(AppUser user)
         {
-
             var result = await _refreshTokenRepo.ValidateRefreshTokenAsync(user);
             if (!result) return Result<bool>.Failure("Refresh token not exists");
             return Result<bool>.Success(true);
         }
 
+        public async Task<Result<string>> GetRefreshTokenAsync(AppUser user)
+        {
+            var result = await _refreshTokenRepo.GetRefreshTokenAsync(user);
+            if (string.IsNullOrEmpty(result)) return Result<string>.Failure("Refresh token not exists");
+            return Result<string>.Success(result);
+        }
+
         public async Task<Result<bool>> ClearRefreshTokenAsync(AppUser user)
         {
+            await _signInManager.SignOutAsync();
+
             var removeResult = await _userManager.RemoveAuthenticationTokenAsync(user, LOGIN_PROVIDER, TOKEN_NAME);
             if (removeResult.Errors.Any())
             {
@@ -65,7 +80,7 @@ namespace Insfrastructure.Services
             return Result<bool>.Success(true);
         }
 
-        public async Task<Result<bool>> RegisterByPassAsync(AppUser user, string password, string userRole, bool isPersistent = false)
+        public async Task<Result<(string, string)>> RegisterByPassAsync(AppUser user, string password, string userRole, bool isPersistent = false)
         {
             using var transaction = await _identityDbContext.Database.BeginTransactionAsync();
 
@@ -83,23 +98,23 @@ namespace Insfrastructure.Services
                     throw new Exception(string.Join(", ", addRoleResult.Errors.Select(x => x.Description)));
                 }
 
-                var createRefreshTokenResult = await CreateRefreshTokenAsync(user);
-                if (!createRefreshTokenResult.Value)
+                var refreshTokenResult = await CreateRefreshTokenAsync(user);
+                if (!refreshTokenResult.IsSuccess)
                 {
-                    throw new Exception(createRefreshTokenResult.Error);
+                    throw new Exception(refreshTokenResult.Error);
                 }
-                var token = _tokenService.CreateAccessToken(user, userRole);
+                var accessToken = _tokenService.CreateAccessToken(user, userRole);
 
                 await _signInManager.SignInAsync(user, isPersistent: true);
 
                 await transaction.CommitAsync();
-                return Result<bool>.Success(true);
+                return Result<(string, string)>.Success((accessToken, refreshTokenResult.Value));
 
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return Result<bool>.Failure(ex.Message);
+                return Result<(string, string)>.Failure(ex.Message);
             }
         }
     }

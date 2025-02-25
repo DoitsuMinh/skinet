@@ -23,11 +23,6 @@ namespace Insfrastructure.Identity
         {
             // Call the base class implementation
             base.OnModelCreating(modelBuilder);
-            // Map AppUserToken to AspNetUserTokens
-            modelBuilder.Entity<AppUserToken>(entity =>
-            {
-                entity.Property(p => p.ExpiredDate).IsRequired().HasDefaultValue(DateTime.UtcNow.AddDays(1));
-            });
         }
     }
 }

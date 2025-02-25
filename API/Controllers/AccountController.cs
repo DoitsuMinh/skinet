@@ -1,5 +1,4 @@
 using API.Dtos;
-using API.Enums;
 using API.Errors;
 using API.Extensions;
 using AutoMapper;
@@ -8,7 +7,6 @@ using Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using static API.Enums.AccountTypeEnums;
 
 namespace API.Controllers
 {
@@ -36,13 +34,14 @@ namespace API.Controllers
         {
 
             var (user, userRole) = await _userManager.FindByEmailFromClaimsPrinciple(User);
-            return new UserDto
+            return Ok(new UserDto
             {
                 Email = user.Email,
-                Token = "",
+                Token = string.Empty,
+                RefreshToken = string.Empty,
                 DisplayName = user.DisplayName,
                 Role = userRole
-            };
+            });
         }
 
         //[HttpGet("emailexists")]
@@ -88,7 +87,7 @@ namespace API.Controllers
             var userResult = await _authenticationService.ValidateLoginByPassAsync(loginDto.Email, loginDto.Password, isPersistent: false);
             if (!userResult.IsSuccess)
             {
-                return Unauthorized(new ApiResponse(401));
+                return Unauthorized(new ApiResponse(401, userResult.Error ?? null));
 
             }
 
@@ -99,23 +98,21 @@ namespace API.Controllers
                 return Unauthorized(new ApiResponse(401, userRoleResult.Error ?? null));
             }
 
-            var refreshTokenResult = await _authenticationService.ValidateRefreshTokenAsync(user);
-            if (!refreshTokenResult.IsSuccess)
-            {
-                return Unauthorized(new ApiResponse(401, refreshTokenResult.Error ?? null));
-            }
+            var refreshToken = string.Empty;
+            var refreshTokenResult = await _authenticationService.CreateRefreshTokenAsync(user);
+            refreshToken = refreshTokenResult.Value;
 
             var userRole = userRoleResult.Value;
-            var userToken = _tokenService.CreateToken(user, userRole);
+            var userAccessToken = _tokenService.CreateAccessToken(user, userRole);
 
             await _signInManager.SignInAsync(user, isPersistent: false);
-
 
             return Ok(new UserDto
             {
                 Email = user.Email,
-                Token = userToken,
+                Token = userAccessToken,
                 DisplayName = user.DisplayName,
+                RefreshToken = refreshTokenResult.Value,
                 Role = userRole
             });
         }
@@ -136,15 +133,18 @@ namespace API.Controllers
                 UserName = registerDto.Email,
             };
 
-            var registerResult = await _authenticationService.RegisterByPassAsync(user, registerDto.Password,registerDto.Role, isPersistent: true);
+            var registerResult = await _authenticationService.RegisterByPassAsync(user, registerDto.Password, registerDto.Role, isPersistent: true);
 
             if (!registerResult.IsSuccess) return BadRequest(new ApiResponse(400, registerResult.Error
                                                                                   ?? null));
 
+            var (accessToken, refreshToken) = registerResult.Value;
+
             return Ok(new UserDto
             {
                 DisplayName = user.DisplayName,
-                Token = _tokenService.CreateAccessToken(user, registerDto.Role),
+                Token = accessToken,
+                RefreshToken = refreshToken,
                 Email = user.Email,
                 Role = registerDto.Role
             });
@@ -167,11 +167,11 @@ namespace API.Controllers
             if (!refreshTokenResult.IsSuccess)
             {
                 return Unauthorized(new ApiResponse(401, refreshTokenResult.Error ?? null));
-            } 
+            }
 
             await _signInManager.SignOutAsync();
             await _authenticationService.ClearRefreshTokenAsync(user);
-            return Ok();            
+            return Ok();
         }
     }
 }
