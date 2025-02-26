@@ -2,30 +2,29 @@
   <div class="flex flex-col gap-3">
     <div class="flex justify-between">
       <div>[Paginator Section]</div>
-      <form
-        #searchForm="ngForm"
-        class="relative mx-4 flex w-full max-w-md items-center"
-        (ngSubmit)="onSubmit(searchForm)">
-        <mat-form-field appearance="outline">
-          <mat-label>Seach</mat-label>
+
+      <form class="relative mx-4 flex w-full max-w-md items-center" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Search</mat-label>
           <input
-            name="seachValue"
-            ngModel
+            [formControl]="searchControl"
             matInput
             placeholder="Item name"
-            (ngModelChange)="onSearchChanges($event)"
             [matAutocomplete]="auto" />
           <mat-icon matSuffix>search</mat-icon>
           <mat-autocomplete #auto="matAutocomplete">
             @for (fProduct of filteredProducts(); track fProduct.id) {
-              <mat-option [value]="fProduct.id" [innerHTML]="fProduct.htmlContent"></mat-option>
+              <mat-option [value]="fProduct.name" [innerHTML]="fProduct.htmlContent"></mat-option>
             }
           </mat-autocomplete>
         </mat-form-field>
       </form>
 
       <div class="flex gap-3">
-        <button class="match-input-height flex items-center gap-1" mat-stroked-button>
+        <button
+          class="match-input-height flex items-center gap-1"
+          mat-stroked-button
+          (click)="openFiltersDialog()">
           <mat-icon fontIcon="filter_list"></mat-icon>
           <span>Filters</span>
         </button>

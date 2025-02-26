@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace Core.Specifications
 {
     public class ProductSpecParams
@@ -17,8 +12,8 @@ namespace Core.Specifications
             set => _pageSize = (value > MaxPageSize) ? MaxPageSize : value;
         }
 
-        public int? BrandId { get; set; }
-        public int? TypeId { get; set; }
+        public string BrandIds { get; set; }
+        public string TypeIds { get; set; }
 
         public string Sort { get; set; }
 

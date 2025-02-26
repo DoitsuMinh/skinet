@@ -3,10 +3,12 @@ import { inject } from '@angular/core';
 import { NavigationExtras, Router } from '@angular/router';
 import { SnackbarService } from '../services/snackbar.service';
 import { catchError, throwError } from 'rxjs';
+import { AuthService } from '../services/auth.service';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const snackbar = inject(SnackbarService);
+  const authService = inject(AuthService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -20,11 +22,15 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           }
           throw modelStateErrors.flat();
         } else {
-          snackbar.error(error.error.title || error.error)
+          snackbar.error(error.error.message || error.error)
         }
       }
       if (error.status === 401) {
-        snackbar.error(error.error.title || error.error);
+        snackbar.error(error.error.message || error.error);
+        if (!req.url.includes('login')) {
+          authService.logout();
+          router.navigateByUrl('/login');
+        }
       }
       if (error.status === 404) {
         router.navigateByUrl('/not-found');

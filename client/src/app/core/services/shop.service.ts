@@ -6,6 +6,8 @@ import { FilteredProduct } from 'src/app/models/filteredProduct';
 import { ShopParams } from 'src/app/models/shopParams';
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
+import { Type } from 'src/app/models/type';
+import { Brand } from 'src/app/models/brand';
 
 @Injectable({
   providedIn: 'root'
@@ -13,18 +15,18 @@ import { Observable } from 'rxjs';
 export class ShopService {
   private env = environment;
   private http = inject(HttpClient);
-  types: string[] = [];
-  brands: string[] = [];
+  types: Type[] = [];
+  brands: Brand[] = [];
 
   getProducts(shopParams: ShopParams) {
     let params = new HttpParams();
 
-    if (shopParams.brandid > 0) {
-      params = params.append('brandid', shopParams.brandid);
+    if (shopParams.brandids.length > 0) {
+      params = params.append('brandIds', shopParams.brandids);
     }
 
-    if (shopParams.typeid > 0) {
-      params = params.append('typeid', shopParams.typeid);
+    if (shopParams.typeids.length > 0) {
+      params = params.append('typeIds', shopParams.typeids);
     }
 
     if (shopParams.sort) {
@@ -44,16 +46,16 @@ export class ShopService {
   getTypes(): void {
     if (this.types.length > 0) return;
 
-    this.http.get<string[]>(`${this.env.apiUrl}/products/types`).subscribe({
-      next: (response) => this.types = response,
-      error: (error) => console.error(error)
-    })
+    this.http.get<Type[]>(`${this.env.apiUrl}/products/types`).subscribe({
+      next: (response: Type[]) => this.types = response,
+      error: (error) => console.error(error),
+    });
   }
 
   getBrands(): void {
     if (this.brands.length > 0) return;
 
-    this.http.get<string[]>(`${this.env.apiUrl}/products/brands`).subscribe({
+    this.http.get<Brand[]>(`${this.env.apiUrl}/products/brands`).subscribe({
       next: (response) => this.brands = response,
       error: (error) => console.error(error)
     })

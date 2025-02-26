@@ -33,6 +33,10 @@ namespace API.Extensions
                         {
                             context.Response.Headers.Append("Token-Expired", "true");
                         }
+                        else
+                        {
+                            context.Response.Headers.Append("Token-Error", context.Exception.GetType().ToString());
+                        }
                         return Task.CompletedTask;
                     }
                 };

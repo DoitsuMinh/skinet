@@ -50,6 +50,7 @@ namespace Insfrastructure.Services
         {
             var refreshToken = _tokenService.GenerateRefreshToken();
             var result = await _refreshTokenRepo.AddRefreshTokenAsync(user, refreshToken);
+            //await _signInManager.RefreshSignInAsync(user);
             if (!result) return Result<string>.Failure("Failed to create refresh token");
             return Result<string>.Success(refreshToken);
         }

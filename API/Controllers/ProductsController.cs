@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes ="bearer")]
     public class ProductsController : BaseApiController
     {
         private readonly IGenericRepository<Product> _productsRepo;

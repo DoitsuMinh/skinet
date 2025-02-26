@@ -98,9 +98,8 @@ namespace API.Controllers
                 return Unauthorized(new ApiResponse(401, userRoleResult.Error ?? null));
             }
 
-            var refreshToken = string.Empty;
             var refreshTokenResult = await _authenticationService.CreateRefreshTokenAsync(user);
-            refreshToken = refreshTokenResult.Value;
+            var refreshToken = refreshTokenResult.Value;
 
             var userRole = userRoleResult.Value;
             var userAccessToken = _tokenService.CreateAccessToken(user, userRole);
@@ -112,7 +111,7 @@ namespace API.Controllers
                 Email = user.Email,
                 Token = userAccessToken,
                 DisplayName = user.DisplayName,
-                RefreshToken = refreshTokenResult.Value,
+                RefreshToken = refreshToken,
                 Role = userRole
             });
         }

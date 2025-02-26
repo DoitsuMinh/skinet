@@ -42,7 +42,7 @@ namespace API.Controllers
             });
         }
 
-        [Authorize(AuthenticationSchemes = "bearer")]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Revoke()
         {

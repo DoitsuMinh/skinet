@@ -65,6 +65,11 @@ export class AuthService {
     }
   }
 
+  logout() {
+    this.#userSignal.set(null);
+    localStorage.removeItem(USER_STORAGE_KEY);
+  }
+
   private getDecodedToken(token: string): any {
     return JSON.parse(atob(token.split('.')[1]));
   }
