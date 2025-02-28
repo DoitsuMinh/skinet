@@ -1,4 +1,5 @@
 export type Type = {
   name: string,
-  id: number
+  id: number,
+  isChecked: boolean
 }

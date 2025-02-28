@@ -3,6 +3,7 @@ using Core.Enitities.Identity;
 using Core.Interfaces;
 using Insfrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Insfrastructure.Services
 {
@@ -116,6 +117,35 @@ namespace Insfrastructure.Services
             {
                 await transaction.RollbackAsync();
                 return Result<(string, string)>.Failure(ex.Message);
+            }
+        }
+
+        public async Task<Result<AppUser>> ValidateRefreshTokenAsync(string token)
+        {
+            try
+            {
+                // Find the user with this refresh token
+                //var user = await _userManager.AppUser.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken);
+                var userToken = await _identityDbContext.UserTokens.SingleOrDefaultAsync(t => t.Name == "RefreshToken" && t.Value == token);
+
+                if (userToken == null)
+                    return Result<AppUser>.Failure("Invalid refresh token");
+
+                var user = await _userManager.FindByIdAsync(userToken.UserId);
+
+                var expiryString = await _userManager.GetAuthenticationTokenAsync(user, "Identity", "RefreshToken");
+
+                if (DateTime.TryParse(expiryString, out var expiry) && expiry <= DateTime.UtcNow)
+                    return Result<AppUser>.Failure("Refresh token expired");
+
+
+                return Result<AppUser>.Success(user);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                //_logger.LogError(ex, "Error validating refresh token");
+                return Result<AppUser>.Failure("Error validating refresh token");
             }
         }
     }

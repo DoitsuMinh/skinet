@@ -7,6 +7,7 @@ using Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using static API.Enums.TimeUnits;
 
 namespace API.Controllers
 {
@@ -17,6 +18,7 @@ namespace API.Controllers
         private readonly ITokenService _tokenService;
         private readonly IMapper _mapper;
         private readonly IAuthenticationService _authenticationService;
+        private readonly int TIME_EXPIRE_VALUE = 1;
 
         public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager
             , ITokenService tokenService, IMapper mapper, IAuthenticationService authenticationService)
@@ -38,7 +40,7 @@ namespace API.Controllers
             {
                 Email = user.Email,
                 Token = string.Empty,
-                RefreshToken = string.Empty,
+                //RefreshToken = string.Empty,
                 DisplayName = user.DisplayName,
                 Role = userRole
             });
@@ -104,14 +106,15 @@ namespace API.Controllers
             var userRole = userRoleResult.Value;
             var userAccessToken = _tokenService.CreateAccessToken(user, userRole);
 
-            await _signInManager.SignInAsync(user, isPersistent: false);
+            //await _signInManager.SignInAsync(user);
+
+            Response.AppendCookie("UserCookie", refreshToken, TimeUnit.Minutes, TIME_EXPIRE_VALUE);
 
             return Ok(new UserDto
             {
                 Email = user.Email,
                 Token = userAccessToken,
                 DisplayName = user.DisplayName,
-                RefreshToken = refreshToken,
                 Role = userRole
             });
         }
@@ -139,11 +142,13 @@ namespace API.Controllers
 
             var (accessToken, refreshToken) = registerResult.Value;
 
+            Response.AppendCookie("UserCookie", refreshToken, TimeUnit.Minutes, TIME_EXPIRE_VALUE);
+
             return Ok(new UserDto
             {
                 DisplayName = user.DisplayName,
                 Token = accessToken,
-                RefreshToken = refreshToken,
+                //RefreshToken = refreshToken,
                 Email = user.Email,
                 Role = registerDto.Role
             });

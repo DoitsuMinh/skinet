@@ -1,4 +1,5 @@
 export type Brand = {
   name: string,
-  id: number
+  id: number,
+  isChecked: boolean
 }

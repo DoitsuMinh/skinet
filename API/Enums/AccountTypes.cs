@@ -1,6 +1,6 @@
 ﻿namespace API.Enums
 {
-    public class AccountTypeEnums
+    public class AccountTypes
     {
         public enum AccountType
         {

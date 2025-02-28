@@ -1,4 +1,5 @@
 using Core.Enitities;
+using Core.Helpers;
 
 namespace Core.Specifications
 {
@@ -9,8 +10,8 @@ namespace Core.Specifications
             : base(x =>
                 (string.IsNullOrEmpty(productParams.Search) || x.Name.ToLower()
                     .Contains(productParams.Search)) &&
-                (string.IsNullOrEmpty(productParams.BrandIds) || x.ProductBrandId ==1 || x.ProductBrandId==2) &&
-                (string.IsNullOrEmpty(productParams.TypeIds) || x.ProductTypeId == 1 || x.ProductTypeId == 2)
+                (string.IsNullOrEmpty(productParams.BrandIds) || StringParser.ParseListIds(productParams.BrandIds).Contains(x.ProductBrandId)) &&
+                (string.IsNullOrEmpty(productParams.TypeIds) || StringParser.ParseListIds(productParams.BrandIds).Contains(x.ProductTypeId))
             )
         {
             AddInclude(x => x.ProductType);
@@ -34,9 +35,6 @@ namespace Core.Specifications
                 }
             }
         }
-
-        //
-
 
         public ProductsWithTypesAndBrandsSpecificaiton(int id) : base(x => x.Id == id)
         {

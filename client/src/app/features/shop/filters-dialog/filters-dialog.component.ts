@@ -22,12 +22,22 @@ import { FormsModule } from '@angular/forms';
 export class FiltersDialogComponent {
   shopService = inject(ShopService);
 
+  // Inject dialog reference - used to control the dialog (close it, etc.)
   private dialogRef = inject(MatDialogRef<FiltersDialogComponent>);
+
+  // Inject data passed to this dialog when it was opened
+  // This contains the initial filter selections
   data = inject(MAT_DIALOG_DATA);
 
+  // Initialize selected brand IDs from the data passed to the dialog
+  // This maintains the current filter state when opening the dialog
   selectedBrandIds: string[] = this.data.selectedBrandIds;
+
+  // Initialize selected type IDs from the data passed to the dialog
+  // This maintains the current filter state when opening the dialog
   selectedTypeIds: string[] = this.data.selectedTypeIds;
 
+  // Method called when user applies the filter selections
   applyFilters(): void {
     this.dialogRef.close({
       selectedBrandIds: this.selectedBrandIds,

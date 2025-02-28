@@ -9,7 +9,12 @@
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>Email</mat-label>
-          <input matInput formControlName="email" type="email" placeholder="Enter your email" />
+          <input
+            matInput
+            formControlName="email"
+            type="email"
+            placeholder="Enter your email"
+            autocomplete="email" />
           <mat-error *ngIf="email?.hasError('required')">Email is required</mat-error>
           <mat-error *ngIf="email?.hasError('email')">Please enter a valid email</mat-error>
         </mat-form-field>
@@ -20,7 +25,8 @@
             matInput
             formControlName="password"
             [type]="hidePassword ? 'password' : 'text'"
-            placeholder="Enter your password" />
+            placeholder="Enter your password"
+            autocomplete="current-password" />
           <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
             <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>

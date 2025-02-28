@@ -9,6 +9,7 @@ namespace Core.Interfaces
         Task<Result<string>> GetUserRoleAsync(AppUser user);
         Task<Result<(string, string)>> RegisterByPassAsync(AppUser user, string password, string userRole, bool isPersistent = false);
         Task<Result<bool>> ValidateRefreshTokenAsync(AppUser user);
+        Task<Result<AppUser>> ValidateRefreshTokenAsync(string token);
         Task<Result<bool>> ClearRefreshTokenAsync(AppUser user);
         Task<Result<string>> GetRefreshTokenAsync(AppUser user);
         Task<Result<string>> CreateRefreshTokenAsync(AppUser user);
