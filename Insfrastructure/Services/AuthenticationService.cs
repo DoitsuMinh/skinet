@@ -4,6 +4,7 @@ using Core.Interfaces;
 using Insfrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Insfrastructure.Services
 {
@@ -14,6 +15,7 @@ namespace Insfrastructure.Services
         private readonly SignInManager<AppUser> _signInManager = signInManager;
         private readonly IRefreshTokenRepository _refreshTokenRepo = refreshTokenRepo;
         private readonly AppIdentityDbContext _identityDbContext = identityDbContext;
+
         private const string LOGIN_PROVIDER = "Identity";
         private const string TOKEN_NAME = "RefreshToken";
 
@@ -51,8 +53,19 @@ namespace Insfrastructure.Services
         {
             var refreshToken = _tokenService.GenerateRefreshToken();
             var result = await _refreshTokenRepo.AddRefreshTokenAsync(user, refreshToken);
-            //await _signInManager.RefreshSignInAsync(user);
+            
             if (!result) return Result<string>.Failure("Failed to create refresh token");
+
+            var refreshTokenn = new RefreshToken
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = user.Id,
+                Token = refreshToken,
+                ExpiresOnUtc = DateTime.UtcNow.AddDays(1)
+            };
+            _identityDbContext.RefreshTokens.Add(refreshTokenn);
+
+            await _identityDbContext.SaveChangesAsync();
             return Result<string>.Success(refreshToken);
         }
 
@@ -120,25 +133,30 @@ namespace Insfrastructure.Services
             }
         }
 
+
+        public async Task<Result<Response>> Test(string token)
+        {
+            RefreshToken? refreshToken = await _identityDbContext.RefreshTokens.Include(r => r.User).FirstOrDefaultAsync(r => r.Token == token);
+            if (refreshToken is null || refreshToken.ExpiresOnUtc < DateTime.UtcNow)
+            {
+                return Result<Response>.Failure("The refresh token has expired");
+            }
+
+            return Result<Response>.Success(new Response("",""));
+        }
+
         public async Task<Result<AppUser>> ValidateRefreshTokenAsync(string token)
         {
             try
             {
-                // Find the user with this refresh token
-                //var user = await _userManager.AppUser.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken);
-                var userToken = await _identityDbContext.UserTokens.SingleOrDefaultAsync(t => t.Name == "RefreshToken" && t.Value == token);
+                RefreshToken? refreshToken = await _identityDbContext.RefreshTokens.Include(r => r.User).FirstOrDefaultAsync(r => r.Token == token);
 
-                if (userToken == null)
-                    return Result<AppUser>.Failure("Invalid refresh token");
+                if (refreshToken is null || refreshToken.ExpiresOnUtc < DateTime.UtcNow)
+                {
+                    return Result<AppUser>.Failure("The refresh token is expired");
+                }
 
-                var user = await _userManager.FindByIdAsync(userToken.UserId);
-
-                var expiryString = await _userManager.GetAuthenticationTokenAsync(user, "Identity", "RefreshToken");
-
-                if (DateTime.TryParse(expiryString, out var expiry) && expiry <= DateTime.UtcNow)
-                    return Result<AppUser>.Failure("Refresh token expired");
-
-
+                var user = _identityDbContext.Users.FirstOrDefaultAsync(r => r.Id == refreshToken.UserId);
                 return Result<AppUser>.Success(user);
             }
             catch (Exception ex)

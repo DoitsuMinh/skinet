@@ -8,8 +8,7 @@ using static API.Enums.TimeUnits;
 
 namespace API.Controllers
 {
-    [Authorize]
-    [ApiController]
+    [Authorize(AuthenticationSchemes = "bearer")]
     public class TokenController : BaseApiController
     {
         private readonly ITokenService _tokenService;

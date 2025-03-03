@@ -1,4 +1,5 @@
 using Core.Enitities.Identity;
+using Insfrastructure.Identity.Config;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,8 @@ namespace Insfrastructure.Identity
 
         }
 
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        
         /// <summary>
         /// This method is called when the model for a derived context has been initialized 
         /// </summary>
@@ -23,6 +26,8 @@ namespace Insfrastructure.Identity
         {
             // Call the base class implementation
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(RefreshTokenConfiguration).Assembly);
         }
     }
 }
