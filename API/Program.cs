@@ -44,9 +44,9 @@ builder.Services.AddApplicationServices();
 // Cross-origin resource sharing
 builder.Services.AddCors(opt =>
 {
-    opt.AddPolicy("CorsPolicy", policy =>
+    opt.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200");
+        policy.WithOrigins("https://localhost:4200").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 
@@ -65,7 +65,7 @@ app.UseRouting();
 
 app.UseStaticFiles();
 
-app.UseCors("CorsPolicy");
+app.UseCors("AllowAngularApp");
 
 app.UseAuthentication();
 app.UseAuthorization();

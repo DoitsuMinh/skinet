@@ -35,7 +35,6 @@ namespace API.Extensions
                 var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
                 var userManager = services.GetRequiredService<UserManager<AppUser>>();
 
-
                 var identityContext = services.GetRequiredService<AppIdentityDbContext>();
                 await identityContext.Database.EnsureCreatedAsync();
                 await identityContext.Database.MigrateAsync();

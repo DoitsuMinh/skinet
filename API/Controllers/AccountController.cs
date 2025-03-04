@@ -7,7 +7,6 @@ using Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using static API.Enums.TimeUnits;
 
 namespace API.Controllers
 {
@@ -18,7 +17,6 @@ namespace API.Controllers
         private readonly ITokenService _tokenService;
         private readonly IMapper _mapper;
         private readonly IAuthenticationService _authenticationService;
-        private readonly int TIME_EXPIRE_VALUE = 1;
 
         public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager
             , ITokenService tokenService, IMapper mapper, IAuthenticationService authenticationService)
@@ -30,17 +28,18 @@ namespace API.Controllers
             _authenticationService = authenticationService;
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes ="bearer")]
         [HttpGet]
         public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
-
             var (user, userRole) = await _userManager.FindByEmailFromClaimsPrinciple(User);
+            //var userResult = await _authenticationService.GetUserByEmailAsync(email);
+            //var user = userResult.Value;
+
+            //var userRoleResult = await _authenticationService.GetUserRoleAsync(user);
             return Ok(new UserDto
             {
                 Email = user.Email,
-                Token = string.Empty,
-                //RefreshToken = string.Empty,
                 DisplayName = user.DisplayName,
                 Role = userRole
             });
@@ -52,14 +51,14 @@ namespace API.Controllers
         //    return await _userManager.FindByEmailAsync(email) != null;
         //}
 
-        //[Authorize]
-        //[HttpGet("address")]
-        //public async Task<ActionResult<AddressDto>> GetUserAddress()
-        //{
-        //    var user = await _userManager.FindByUserByClaimsPrincipleWithAddressAsync(User);
+        [Authorize]
+        [HttpGet("address")]
+        public async Task<ActionResult<AddressDto>> GetUserAddress()
+        {
+            var user = await _userManager.FindByUserByClaimsPrincipleWithAddressAsync(User);
 
-        //    return _mapper.Map<Address, AddressDto>(user.Address);
-        //}
+            return _mapper.Map<Address, AddressDto>(user.Address);
+        }
 
         //[Authorize]
         //[HttpPut("address")]
@@ -84,39 +83,15 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         [HttpPost("login")]
-        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
+        public async Task<ActionResult<UserDto>> Login([FromBody] LoginDto loginDto)
         {
-            var userResult = await _authenticationService.ValidateLoginByPassAsync(loginDto.Email, loginDto.Password, isPersistent: false);
+            var userResult = await _authenticationService.LoginUserAsync(loginDto.Email, loginDto.Password);
             if (!userResult.IsSuccess)
             {
                 return Unauthorized(new ApiResponse(401, userResult.Error ?? null));
 
             }
-
-            var user = userResult.Value;
-            var userRoleResult = await _authenticationService.GetUserRoleAsync(user);
-            if (!userRoleResult.IsSuccess)
-            {
-                return Unauthorized(new ApiResponse(401, userRoleResult.Error ?? null));
-            }
-
-            var refreshTokenResult = await _authenticationService.CreateRefreshTokenAsync(user);
-            var refreshToken = refreshTokenResult.Value;
-
-            var userRole = userRoleResult.Value;
-            var userAccessToken = _tokenService.CreateAccessToken(user, userRole);
-
-            //await _signInManager.SignInAsync(user);
-
-            Response.AppendCookie("UserCookie", refreshToken, TimeUnit.Minutes, TIME_EXPIRE_VALUE);
-
-            return Ok(new UserDto
-            {
-                Email = user.Email,
-                Token = userAccessToken,
-                DisplayName = user.DisplayName,
-                Role = userRole
-            });
+            return Ok();
         }
 
         /// <summary>
@@ -135,47 +110,13 @@ namespace API.Controllers
                 UserName = registerDto.Email,
             };
 
-            var registerResult = await _authenticationService.RegisterByPassAsync(user, registerDto.Password, registerDto.Role, isPersistent: true);
+            var registerResult = await _authenticationService.RegisterByPassAsync(user, registerDto.Password, registerDto.Role);
 
             if (!registerResult.IsSuccess) return BadRequest(new ApiResponse(400, registerResult.Error
                                                                                   ?? null));
 
-            var (accessToken, refreshToken) = registerResult.Value;
-
-            Response.AppendCookie("UserCookie", refreshToken, TimeUnit.Minutes, TIME_EXPIRE_VALUE);
-
-            return Ok(new UserDto
-            {
-                DisplayName = user.DisplayName,
-                Token = accessToken,
-                //RefreshToken = refreshToken,
-                Email = user.Email,
-                Role = registerDto.Role
-            });
+            return Created();
         }
 
-        [HttpPost("logout")]
-        [Authorize]
-        public async Task<IActionResult> LogOut(UserDto userDto)
-        {
-            var user = new AppUser
-            {
-                DisplayName = userDto.DisplayName,
-                Email = userDto.Email,
-                UserName = userDto.Email,
-            };
-            var currentUser = await _signInManager.UserManager.GetUserAsync(User);
-            if (currentUser == null) return BadRequest(new ApiResponse(400, "User already not logged in"));
-
-            var refreshTokenResult = await _authenticationService.ValidateRefreshTokenAsync(currentUser);
-            if (!refreshTokenResult.IsSuccess)
-            {
-                return Unauthorized(new ApiResponse(401, refreshTokenResult.Error ?? null));
-            }
-
-            await _signInManager.SignOutAsync();
-            await _authenticationService.ClearRefreshTokenAsync(user);
-            return Ok();
-        }
     }
 }

@@ -7,12 +7,15 @@ namespace Core.Interfaces
     {
         Task<Result<AppUser>> ValidateLoginByPassAsync(string email, string password, bool isPersistent = false);
         Task<Result<string>> GetUserRoleAsync(AppUser user);
-        Task<Result<(string, string)>> RegisterByPassAsync(AppUser user, string password, string userRole, bool isPersistent = false);
+        Task<Result<bool>> RegisterByPassAsync(AppUser user, string password, string userRole);
         Task<Result<bool>> ValidateRefreshTokenAsync(AppUser user);
         Task<Result<AppUser>> ValidateRefreshTokenAsync(string token);
-        Task<Result<bool>> ClearRefreshTokenAsync(AppUser user);
+        Task<Result<bool>> ClearRefreshTokenAsync(string token);
         Task<Result<string>> GetRefreshTokenAsync(AppUser user);
         Task<Result<string>> CreateRefreshTokenAsync(AppUser user);
         Task<Result<AppUser>> GetUserByEmailAsync(string email);
+        Task<Result<bool>> LoginUserAsync(string email, string password);
+        string GenerateAccessToken(AppUser user,string userRole);
+        Task<Result<AppUser>> GetUserByRefreshTokenAsync(string token);
     }
 }

@@ -25,20 +25,20 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           snackbar.error(error.error.message || error.error)
         }
       }
-      if (error.status === 401) {
+      else if (error.status === 401) {
         snackbar.error(error.error.message || error.error);
         if (!req.url.includes('login')) {
-          authService.logout();
+          authService.refreshToken();
           router.navigateByUrl('/login');
         }
       }
-      if (error.status === 404) {
+      else if (error.status === 404) {
         router.navigateByUrl('/not-found');
       }
-      // if (error.status === 500) {
-      //   const navigationExtras: NavigationExtras = { state: { error: error.error } }
-      //   router.navigateByUrl('/server-error', navigationExtras);
-      // }
+      else if (error.status === 500) {
+        const navigationExtras: NavigationExtras = { state: { error: error.error } }
+        router.navigateByUrl('/server-error', navigationExtras);
+      }
       return throwError(() => error);
     })
   );

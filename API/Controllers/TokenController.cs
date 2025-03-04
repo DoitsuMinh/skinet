@@ -1,91 +1,127 @@
-﻿using Core.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+﻿using API.Dtos;
 using API.Errors;
-using API.Dtos;
 using API.Extensions;
+using Core.Enitities.Identity;
+using Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using static API.Enums.TimeUnits;
 
+/* DOC:
+ * https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow
+ * Apply the OAuth 2.0 authorization
+ */
 namespace API.Controllers
 {
-    [Authorize(AuthenticationSchemes = "bearer")]
     public class TokenController : BaseApiController
     {
-        private readonly ITokenService _tokenService;
         private readonly IAuthenticationService _authenticationService;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly IConfiguration _configuration;
 
-        public TokenController(ITokenService tokenService, IAuthenticationService authenticationService)
+        public TokenController(IAuthenticationService authenticationService, IConfiguration configuration, UserManager<AppUser> userManager)
         {
-            _tokenService = tokenService;
             _authenticationService = authenticationService;
+            _configuration = configuration;
+            _userManager = userManager;
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+        [HttpPost]
+        public async Task<ActionResult<TokenDto>> GenerateToken(LoginDto loginDto)
+        {
+            var userResult = await _authenticationService.GetUserByEmailAsync(loginDto.Email);
+            if (!userResult.IsSuccess) return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse(StatusCodes.Status500InternalServerError, userResult.Error));
+
+            var user = userResult.Value;
+
+            var refreshTokenResult = await _authenticationService.CreateRefreshTokenAsync(user);
+            if (!refreshTokenResult.IsSuccess) return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse(StatusCodes.Status500InternalServerError, refreshTokenResult.Error));
+
+            var refreshToken = refreshTokenResult.Value;
+
+            var userRoleResult = await _authenticationService.GetUserRoleAsync(user);
+            if (!userRoleResult.IsSuccess) return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse(StatusCodes.Status500InternalServerError, userRoleResult.Error));
+
+            var accessToken = _authenticationService.GenerateAccessToken(user, userRoleResult.Value);
+
+            Response.AppendCookie(
+                _configuration["Cookie:Name"],
+                refreshToken,
+                TimeUnit.Minutes,
+                int.Parse(_configuration["Cookie:ExpirationInMinutes"])
+                );
+
+            return Ok(new TokenDto { AccessToken = accessToken });
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         [HttpPost("refresh")]
-        public async Task<ActionResult<UserDto>> Refresh()
+        public async Task<ActionResult<TokenDto>> Refresh()
         {
             // Try to get the refresh token from the cookie
-            if (!Request.Cookies.TryGetValue("UserCookie", out var refreshToken))
+            if (!Request.Cookies.TryGetValue(_configuration["Cookie:Name"], out var refreshToken))
             {
-                return Unauthorized(new ApiResponse(401, "Refresh token not found"));
+                // Validate the refresh token and get the user
+                //await _authenticationService.ClearRefreshTokenAsync(refreshToken);
             }
 
+            // Try to get the refresh token from the cookie
+            var (user, userRole) = await _userManager.FindByEmailFromClaimsPrinciple(User);
+
+            var resfreshTokenResult = await _authenticationService.GetRefreshTokenAsync(user);
+
             // Validate the refresh token and get the user
-            var userResult = await _authenticationService.ValidateRefreshTokenAsync(refreshToken);
+            var userResult = await _authenticationService.ValidateRefreshTokenAsync(resfreshTokenResult.Value);
             if (!userResult.IsSuccess)
             {
                 // Clear the invalid cookie
-                Response.Cookies.Delete("UserCookie");
-                return Unauthorized(new ApiResponse(401, userResult.Error ?? "Invalid refresh token"));
+                Response.Cookies.Delete(_configuration["Cookie:Name"]);
+                return Unauthorized(new ApiResponse(StatusCodes.Status401Unauthorized, userResult.Error));
             }
 
-            var user = userResult.Value;
-
-            // Get the user's role
-            var userRoleResult = await _authenticationService.GetUserRoleAsync(userResult.Value);
-            if (!userRoleResult.IsSuccess)
-            {
-                return Unauthorized(new ApiResponse(401, userRoleResult.Error ?? "Failed to get user role"));
-            }
-            var userRole = userRoleResult.Value;
             // Generate a new refresh token
             var newRefreshTokenResult = await _authenticationService.CreateRefreshTokenAsync(user);
             if (!newRefreshTokenResult.IsSuccess)
             {
-                return StatusCode(500, new ApiResponse(500, "Failed to generate refresh token"));
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse(StatusCodes.Status500InternalServerError, "Failed to generate refresh token"));
             }
             var newRefreshToken = newRefreshTokenResult.Value;
 
             // Generate a new access token
-            var userAccessToken = _tokenService.CreateAccessToken(user, userRole);
+            var accessToken = _authenticationService.GenerateAccessToken(user, userRole);
 
             // Set the new refresh token cookie
-            Response.AppendCookie("UserCookie", newRefreshToken, TimeUnit.Minutes, 1);
+            Response.AppendCookie(
+              _configuration["Cookie:Name"],
+              newRefreshToken,
+              TimeUnit.Minutes,
+              int.Parse(_configuration["Cookie:ExpirationInMinutes"])
+              );
 
             // Return the new access token
-            return Ok(new UserDto
-            {
-                Email = user.Email,
-                Token = userAccessToken,
-                DisplayName = user.DisplayName,
-                Role = userRole
-            });
+            return Ok(new TokenDto { AccessToken = accessToken });
         }
 
-        [HttpPost]
+        [Authorize(AuthenticationSchemes = "bearer")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [HttpPost("revoke")]
         public async Task<IActionResult> Revoke()
         {
-            var email = User.Identity.Name;
+            // Try to get the refresh token from the cookie
+            if (!Request.Cookies.TryGetValue(_configuration["Cookie:Name"], out var refreshToken))
+            {
+                // Validate the refresh token and get the user
+                await _authenticationService.ClearRefreshTokenAsync(refreshToken);
+            }
 
-            var userResult = await _authenticationService.GetUserByEmailAsync(email);
-            if (!userResult.IsSuccess) return BadRequest(new ApiResponse(400, userResult.Error ?? null));
-
-            await _authenticationService.ClearRefreshTokenAsync(userResult.Value);
-
+            // Clear the cookie
+            Response.Cookies.Delete(_configuration["Cookie:Name"]);
             return NoContent();
         }
-
     }
 }
