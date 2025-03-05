@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { map, switchMap, tap } from 'rxjs';
+import { catchError, map, switchMap, tap, throwError } from 'rxjs';
 import { Token } from 'src/app/models/token';
 import { User } from 'src/app/models/user';
 import { environment } from 'src/environments/environment';
@@ -16,7 +16,7 @@ export class AuthService {
   user = this.#userSignal.asReadonly();
 
   #isRefreshToken = signal<boolean>(false);
-  isRefreshToken = this.#isRefreshToken.asReadonly();
+  // isRefreshToken = this.#isRefreshToken.asReadonly();
   isRefreshingToken = computed(() => this.#isRefreshToken())
 
   isLoggedIn = computed(() => !!this.user())
@@ -36,7 +36,7 @@ export class AuthService {
     // })
   }
 
-  setIsRefreshingToken() {
+  startRefreshingToken() {
     this.#isRefreshToken.set(true);
   }
 
@@ -59,7 +59,7 @@ export class AuthService {
       switchMap(() => this.getToken(email)),
       // After getting the token, get the current user
       switchMap((tokenResponse: Token) => {
-        return this.getCurrentUser(email, tokenResponse.accessToken);
+        return this.getCurrentUser(tokenResponse.accessToken);
       })
     );
   }
@@ -83,13 +83,9 @@ export class AuthService {
     )
   }
 
-  getCurrentUser(email: string, accessToken: string) {
-    // let params = new HttpParams();
-    // params.append("email", email);
+  getCurrentUser(accessToken: string) {
 
-    return this.http.get<User>(`${environment.apiUrl}/account`,
-      // { params }
-    ).pipe(
+    return this.http.get<User>(`${environment.apiUrl}/account`).pipe(
       map(user => {
         user.token = accessToken;
         this.#userSignal.set(user);
@@ -101,7 +97,7 @@ export class AuthService {
     return this.http.post<Token>(`${environment.apiUrl}/token/refresh`, null, { withCredentials: true }).pipe(
       map((result: Token) => {
         this.#userSignal.update(currentUser => {
-          if (!currentUser) return null;
+          // if (!currentUser) return null;
 
           return {
             ...currentUser,
@@ -136,7 +132,7 @@ export class AuthService {
 
   logout() {
     // this.#userSignal.set(null);
-    this.revokeToken().subscribe;
+    if (!this.isLoggedIn()) { this.revokeToken().subscribe; }
     this.#userSignal.set(null);
     // localStorage.removeItem(USER_STORAGE_KEY);
   }

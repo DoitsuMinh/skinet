@@ -5,7 +5,7 @@ import { Product } from 'src/app/models/product';
 import { FilteredProduct } from 'src/app/models/filteredProduct';
 import { ShopParams } from 'src/app/models/shopParams';
 import { environment } from 'src/environments/environment';
-import { Observable } from 'rxjs';
+import { EMPTY, map, Observable, tap } from 'rxjs';
 import { Type } from 'src/app/models/type';
 import { Brand } from 'src/app/models/brand';
 
@@ -43,25 +43,29 @@ export class ShopService {
     return this.http.get<Pagination<Product>>(`${this.env.apiUrl}/products`, { params });
   }
 
-  getTypes(): void {
-    if (this.types.length > 0) return;
+  getTypes(): Observable<Type[]> {
+    // if (this.types.length > 0) return EMPTY;
 
-    this.http.get<Type[]>(`${this.env.apiUrl}/products/types`).subscribe({
-      next: (response: Type[]) => this.types = response,
-      error: (error) => console.error(error),
-    });
+    return this.http.get<Type[]>(`${this.env.apiUrl}/products/types`).pipe(
+      map((response: Type[]) => this.types = response)
+    );
   }
 
-  getBrands(): void {
-    if (this.brands.length > 0) return;
+  getBrands(): Observable<Brand[]> {
+    // console.log(this.brands)
+    // if (this.brands.length > 0) return EMPTY;
 
-    this.http.get<Brand[]>(`${this.env.apiUrl}/products/brands`).subscribe({
-      next: (response) => this.brands = response,
-      error: (error) => console.error(error)
-    })
+    return this.http.get<Brand[]>(`${this.env.apiUrl}/products/brands`).pipe(
+      map((brands: Brand[]) => this.brands = brands)
+    );
   }
 
   getFilteredProduct(searchValue: string): Observable<FilteredProduct[]> {
     return this.http.get<FilteredProduct[]>(`${this.env.apiUrl}/products/filtered-products?searchValue=${searchValue}`);
+  }
+
+  clearMemory(): void {
+    this.brands = [];
+    this.types = [];
   }
 }

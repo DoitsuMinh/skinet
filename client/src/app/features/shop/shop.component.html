@@ -28,7 +28,10 @@
           <mat-icon fontIcon="filter_list"></mat-icon>
           <span>Filters</span>
         </button>
-        <button class="match-input-height flex items-center gap-1" mat-stroked-button>
+        <button
+          class="match-input-height flex items-center gap-1"
+          mat-stroked-button
+          [mat-menu-trigger-for]="sortMenu">
           <mat-icon fontIcon="swap_vert"></mat-icon>
           <span>Sort</span>
         </button>
@@ -40,4 +43,14 @@
       }
     </div>
   </div>
+
+  <mat-menu #sortMenu="matMenu">
+    <mat-selection-list [multiple]="false" (selectionChange)="onSortChange($event)">
+      @for (sort of sortOptions; track $index) {
+        <mat-list-option [value]="sort.value" [selected]="selectedSort === sort.value">
+          {{ sort.name }}
+        </mat-list-option>
+      }
+    </mat-selection-list>
+  </mat-menu>
 }
