@@ -1,7 +1,14 @@
 @if (products) {
   <div class="flex flex-col gap-3">
     <div class="flex justify-between">
-      <div>[Paginator Section]</div>
+      <mat-paginator
+        (page)="handlePageEvent($event)"
+        [length]="products.count"
+        [pageSize]="pageSize"
+        [showFirstLastButtons]="true"
+        [pageSizeOptions]="pageSizeOption"
+        [pageIndex]="pageNumber - 1"
+        aria-label="Select page"></mat-paginator>
 
       <form class="relative mx-4 flex w-full max-w-md items-center" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="outline" class="w-full">
@@ -21,6 +28,18 @@
       </form>
 
       <div class="flex gap-3">
+        @if (
+          (selectedBrandIds && selectedBrandIds.length > 0) ||
+          (selectedTypeIds && selectedTypeIds.length > 0)
+        ) {
+          <button
+            mat-mini-fab
+            class="right-1 top-2 flex items-center gap-1"
+            (click)="clearFilters()">
+            <mat-icon fontIcon="filter_alt_off"></mat-icon>
+          </button>
+        }
+
         <button
           class="match-input-height flex items-center gap-1"
           mat-stroked-button
@@ -38,7 +57,7 @@
       </div>
     </div>
     <div class="grid grid-cols-5 gap-4">
-      @for (product of products; track product.id) {
+      @for (product of products.data; track product.id) {
         <app-product-item [product]="product"></app-product-item>
       }
     </div>

@@ -3,7 +3,9 @@
     <img routerLink="/" src="images/logo.png" alt="app logo" class="max-h-16" />
     @if (authService.isLoggedIn()) {
       <nav class="my-2 flex gap-3 text-2xl uppercase">
-        <a routerLink="/" routerLinkActive="active">Home</a>
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          Home
+        </a>
         <a routerLink="/shop" routerLinkActive="active">Shop</a>
         <a routerLink="/test-error" routerLinkActive="active">Errors</a>
       </nav>

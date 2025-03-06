@@ -17,6 +17,7 @@ namespace Insfrastructure.Data.Config
                 .HasForeignKey(p => p.ProductBrandId);
             builder.HasOne(t => t.ProductType).WithMany()
                 .HasForeignKey(p => p.ProductTypeId);
+            builder.Property(c => c.QuantityInStock).HasColumnType("INTEGER");
         }
     }
 }

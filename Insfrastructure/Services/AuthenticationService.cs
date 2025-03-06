@@ -17,9 +17,6 @@ namespace Insfrastructure.Services
         private readonly IRefreshTokenRepository _refreshTokenRepo = refreshTokenRepo;
         private readonly AppIdentityDbContext _identityDbContext = identityDbContext;
 
-        private const string LOGIN_PROVIDER = "Identity";
-        private const string TOKEN_NAME = "RefreshToken";
-
         public async Task<Result<AppUser>> ValidateLoginByPassAsync(string email, string password, bool isRememberPass)
         {
             var user = await _userManager.FindByEmailAsync(email);

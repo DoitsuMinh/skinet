@@ -17,6 +17,9 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { FiltersDialogComponent } from './filters-dialog/filters-dialog.component';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
+import { MatButton, MatMiniFabButton } from '@angular/material/button';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { Pagination } from 'src/app/models/pagination';
 
 @Component({
   selector: 'app-shop',
@@ -33,13 +36,16 @@ import { SnackbarService } from 'src/app/core/services/snackbar.service';
       MatMenu,
       MatSelectionList,
       MatListOption,
-      MatMenuTrigger
+      MatMenuTrigger,
+      MatButton,
+      MatMiniFabButton,
+      MatPaginator
     ],
   templateUrl: './shop.component.html',
   styleUrl: './shop.component.scss'
 })
 export class ShopComponent implements OnDestroy {
-  products: Product[] = [];
+  products?: Pagination<Product>;
   private shopService = inject(ShopService);
   private dialogService = inject(MatDialog);
   private snackbar = inject(SnackbarService);
@@ -48,8 +54,8 @@ export class ShopComponent implements OnDestroy {
   filteredProducts = signal<FilteredProduct[]>([]);
   searchControl = new FormControl('');
 
-  selectedBrandIds: string[] = [];
-  selectedTypeIds: string[] = [];
+  selectedBrandIds: number[] = [];
+  selectedTypeIds: number[] = [];
   selectedSort: string = 'name';
   sortOptions = [
     { name: 'Alphabetical', value: 'name' },
@@ -57,8 +63,12 @@ export class ShopComponent implements OnDestroy {
     { name: 'Price: High-Low', value: 'priceDesc' }
   ]
 
+  pageNumber: number = 1;
+  pageSize: number = 10;
+  pageSizeOption = [5, 10, 15, 20];
+
+
   readonly DEBOUNCE_TIME = 300;
-  readonly INIT_PAGE_NUMBER = 1;
 
   private sanitizer = inject(DomSanitizer);
 
@@ -79,7 +89,7 @@ export class ShopComponent implements OnDestroy {
         );
         if (isExistedInFilteredProducts) {
           const shopParams = new ShopParams(
-            { pageNumber: this.INIT_PAGE_NUMBER, searchValue: searchValue }
+            { pageNumber: 1, pageSize: this.pageSize, searchValue: searchValue }
           );
           return this.loadProducts(shopParams); // Load products based on the selected product
         } else if (searchValue.length >= 2) {
@@ -104,9 +114,10 @@ export class ShopComponent implements OnDestroy {
       this.selectedSort = selectedOption.value;
       const shopParams = new ShopParams({
         sort: this.selectedSort,
-        brandids: this.selectedBrandIds?.join(',').toString() ?? '',
-        typeids: this.selectedTypeIds?.join(',').toString() ?? '',
-        pageNumber: this.INIT_PAGE_NUMBER
+        brandids: this.selectedBrandIds ?? [],
+        typeids: this.selectedTypeIds ?? [],
+        pageNumber: 1,
+        pageSize: this.pageSize
       })
       this.loadProducts(shopParams).subscribe();
     }
@@ -125,11 +136,12 @@ export class ShopComponent implements OnDestroy {
       map((result) => {
         console.log(result)
         this.selectedBrandIds = result.selectedBrandIds;
-        this.selectedTypeIds = result.selectedBrandIds;
+        this.selectedTypeIds = result.selectedTypeIds;
         return new ShopParams({
-          brandids: this.selectedBrandIds?.join(',').toString() ?? '',
-          typeids: this.selectedTypeIds?.join(',').toString() ?? '',
-          pageNumber: this.INIT_PAGE_NUMBER
+          brandids: this.selectedBrandIds ?? [],
+          typeids: this.selectedTypeIds ?? [],
+          pageNumber: 1,
+          pageSize: this.pageSize
         });
       }),
       switchMap((shopParams: ShopParams) => this.loadProducts(shopParams)),
@@ -140,18 +152,37 @@ export class ShopComponent implements OnDestroy {
     ).subscribe()
   }
 
+  clearFilters(): void {
+    this.selectedBrandIds = [];
+    this.selectedTypeIds = [];
+    this.loadProducts().subscribe();
+  }
+
   // This method returns the filtered products signal value.
-  loadProducts(params?: ShopParams): Observable<Product[]> {
-    return this.shopService.getProducts(params ?? new ShopParams()).pipe(
-      map((response) => this.products = response.data)
+  loadProducts(params?: ShopParams): Observable<Pagination<Product>> {
+    return this.shopService.getProducts(params ?? new ShopParams({
+      pageNumber: this.pageNumber,
+      pageSize: this.pageSize
+    })).pipe(
+      map((response) => this.products = response)
     )
+  }
+
+  handlePageEvent(event: PageEvent) {
+    this.pageNumber = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    const shopParams = new ShopParams({
+      pageNumber: this.pageNumber,
+      pageSize: this.pageSize
+    })
+    this.loadProducts(shopParams).subscribe();
   }
 
   // This method is called when the user submits the search form.
   onSubmit(): void {
     const searchValue = this.searchControl.value || '';
     const shopParams = new ShopParams(
-      { pageNumber: this.INIT_PAGE_NUMBER, searchValue: searchValue }
+      { pageNumber: 1, pageSize: this.pageSize, searchValue: searchValue }
     );
 
     this.loadProducts(shopParams).subscribe();

@@ -31,11 +31,11 @@ export class FiltersDialogComponent {
 
   // Initialize selected brand IDs from the data passed to the dialog
   // This maintains the current filter state when opening the dialog
-  selectedBrandIds: string[] = this.data.selectedBrandIds;
+  selectedBrandIds: number[] = this.data.selectedBrandIds;
 
   // Initialize selected type IDs from the data passed to the dialog
   // This maintains the current filter state when opening the dialog
-  selectedTypeIds: string[] = this.data.selectedTypeIds;
+  selectedTypeIds: number[] = this.data.selectedTypeIds;
 
   // Method called when user applies the filter selections
   applyFilters(): void {

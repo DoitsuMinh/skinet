@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Insfrastructure.Migrations
+namespace Insfrastructure.Identity.Migrations
 {
     /// <inheritdoc />
-    public partial class RefreshToken_Init_v1 : Migration
+    public partial class Identity : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -50,6 +50,8 @@ namespace Insfrastructure.Migrations
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                 });
+
+           
 
             migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
@@ -199,6 +201,7 @@ namespace Insfrastructure.Migrations
                         principalColumn: "Id");
                 });
 
+
             migrationBuilder.CreateIndex(
                 name: "IX_Address_AppUserId",
                 table: "Address",
@@ -274,6 +277,7 @@ namespace Insfrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
 
             migrationBuilder.DropTable(
                 name: "RefreshTokens");

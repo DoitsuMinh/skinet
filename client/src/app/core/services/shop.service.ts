@@ -18,15 +18,15 @@ export class ShopService {
   types: Type[] = [];
   brands: Brand[] = [];
 
-  getProducts(shopParams: ShopParams) {
+  getProducts(shopParams: ShopParams): Observable<Pagination<Product>> {
     let params = new HttpParams();
 
     if (shopParams.brandids.length > 0) {
-      params = params.append('brandIds', shopParams.brandids);
+      params = params.append('brandIds', shopParams.brandids.join(','));
     }
 
     if (shopParams.typeids.length > 0) {
-      params = params.append('typeIds', shopParams.typeids);
+      params = params.append('typeIds', shopParams.typeids.join(','));
     }
 
     if (shopParams.sort) {
@@ -37,24 +37,23 @@ export class ShopService {
       params = params.append('search', shopParams.search);
     }
 
-    params = params.append('pageSize', 20);
+    params = params.append('pageSize', shopParams.pageSize);
     params = params.append('pageIndex', shopParams.pageNumber);
 
     return this.http.get<Pagination<Product>>(`${this.env.apiUrl}/products`, { params });
   }
 
-  getTypes(): Observable<Type[]> {
-    // if (this.types.length > 0) return EMPTY;
+  getProduct(id: number): Observable<Product> {
+    return this.http.get<Product>(`${this.env.apiUrl}/products/${id}`);
+  }
 
+  getTypes(): Observable<Type[]> {
     return this.http.get<Type[]>(`${this.env.apiUrl}/products/types`).pipe(
       map((response: Type[]) => this.types = response)
     );
   }
 
   getBrands(): Observable<Brand[]> {
-    // console.log(this.brands)
-    // if (this.brands.length > 0) return EMPTY;
-
     return this.http.get<Brand[]>(`${this.env.apiUrl}/products/brands`).pipe(
       map((brands: Brand[]) => this.brands = brands)
     );
@@ -68,4 +67,5 @@ export class ShopService {
     this.brands = [];
     this.types = [];
   }
+
 }

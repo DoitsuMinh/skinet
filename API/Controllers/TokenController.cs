@@ -68,7 +68,6 @@ namespace API.Controllers
             if (Request.Cookies.TryGetValue(_configuration["Cookie:Name"], out var refreshToken))
             {
                 // Try to get the refresh token from the cookie
-                //var (user, userRole) = await _userManager.FindByEmailFromClaimsPrinciple(User);
                 var userResult = await _authenticationService.GetUserByRefreshTokenAsync(refreshToken);
                 if (!userResult.IsSuccess)
                 {
@@ -110,21 +109,7 @@ namespace API.Controllers
                 return Ok(new TokenDto { AccessToken = accessToken });
             }
 
-            // Try to get the refresh token from the cookie
-            //var (user, userRole) = await _userManager.FindByEmailFromClaimsPrinciple(User);
-            //var userResult = await _authenticationService.GetUserByRefreshTokenAsync(refreshToken);
-            //var user = userResult.Value;
-            //var resfreshTokenResult = await _authenticationService.GetRefreshTokenAsync(user);
-
-            //// Validate the refresh token and get the user
-            //var refreshTokenResult = await _authenticationService.ValidateRefreshTokenAsync(resfreshTokenResult.Value);
-            //if (!refreshTokenResult.IsSuccess)
-            //{
-            //    // Clear the invalid cookie
-            //    Response.Cookies.Delete(_configuration["Cookie:Name"]);
-            //    return Unauthorized(new ApiResponse(StatusCodes.Status401Unauthorized, userResult.Error));
-            //}
-
+            // Clear cookie if exist
             Response.Cookies.Delete(_configuration["Cookie:Name"]);
             return Unauthorized(new ApiResponse(StatusCodes.Status401Unauthorized, "Time out! 🙋"));
         }

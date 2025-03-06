@@ -14,7 +14,6 @@ namespace API.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
-        private readonly ITokenService _tokenService;
         private readonly IMapper _mapper;
         private readonly IAuthenticationService _authenticationService;
 
@@ -22,7 +21,6 @@ namespace API.Controllers
             , ITokenService tokenService, IMapper mapper, IAuthenticationService authenticationService)
         {
             _mapper = mapper;
-            _tokenService = tokenService;
             _signInManager = signInManager;
             _userManager = userManager;
             _authenticationService = authenticationService;
@@ -33,10 +31,7 @@ namespace API.Controllers
         public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
             var (user, userRole) = await _userManager.FindByEmailFromClaimsPrinciple(User);
-            //var userResult = await _authenticationService.GetUserByEmailAsync(email);
-            //var user = userResult.Value;
 
-            //var userRoleResult = await _authenticationService.GetUserRoleAsync(user);
             return Ok(new UserDto
             {
                 Email = user.Email,
@@ -51,7 +46,7 @@ namespace API.Controllers
         //    return await _userManager.FindByEmailAsync(email) != null;
         //}
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "bearer")]
         [HttpGet("address")]
         public async Task<ActionResult<AddressDto>> GetUserAddress()
         {

@@ -3,7 +3,7 @@ import { MatIcon } from '@angular/material/icon'
 import { MatButton } from '@angular/material/button'
 import { MatBadge } from '@angular/material/badge'
 import { AuthService } from 'src/app/core/services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 
 @Component({
@@ -13,6 +13,8 @@ import { SnackbarService } from 'src/app/core/services/snackbar.service';
     MatIcon,
     MatButton,
     MatBadge,
+    RouterLink,
+    RouterLinkActive
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'

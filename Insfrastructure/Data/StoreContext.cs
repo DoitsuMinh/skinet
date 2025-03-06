@@ -1,5 +1,6 @@
 using System.Reflection;
 using Core.Enitities;
+using Core.Enitities.Identity;
 using Insfrastructure.Data.Config;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,8 @@ namespace Insfrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Ignore<AppUser>();
+            modelBuilder.Ignore<AppUserToken>();
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ProductConfiguration).Assembly);
         }
