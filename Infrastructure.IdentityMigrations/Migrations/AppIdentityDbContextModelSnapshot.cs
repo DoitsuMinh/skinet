@@ -3,19 +3,16 @@ using System;
 using Insfrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Insfrastructure.Identity.Migrations
+namespace Infrastructure.IdentityMigrations.Migrations
 {
     [DbContext(typeof(AppIdentityDbContext))]
-    [Migration("20250306083744_Identity")]
-    partial class Identity
+    partial class AppIdentityDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.13");
@@ -142,75 +139,7 @@ namespace Insfrastructure.Identity.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("Core.Enitities.Product", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PictureUrl")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("REAL");
-
-                    b.Property<int>("ProductBrandId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ProductTypeId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("QuantityInStock")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductBrandId");
-
-                    b.HasIndex("ProductTypeId");
-
-                    b.ToTable("Product");
-                });
-
-            modelBuilder.Entity("Core.Enitities.ProductBrand", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ProductBrand");
-                });
-
-            modelBuilder.Entity("Core.Enitities.ProductType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ProductType");
-                });
-
+            
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -359,24 +288,7 @@ namespace Insfrastructure.Identity.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Core.Enitities.Product", b =>
-                {
-                    b.HasOne("Core.Enitities.ProductBrand", "ProductBrand")
-                        .WithMany()
-                        .HasForeignKey("ProductBrandId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Core.Enitities.ProductType", "ProductType")
-                        .WithMany()
-                        .HasForeignKey("ProductTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ProductBrand");
-
-                    b.Navigation("ProductType");
-                });
+           
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {

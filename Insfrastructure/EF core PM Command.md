@@ -5,7 +5,7 @@
 ### Command
 
 ```
-dotnet ef migrations add IntitalCreate --startup-project [API dir] --project [Infrastructure dir] --context [StoreContext or AppIndentityDbContext]
+dotnet ef migrations add IntitalCreate --startup-project [API dir] --project [Infrastructure dir] --context [StoreContext or AppIndentityDbContext] --output-dir [Data/Migrations or Identity/Migrations]
 ```
 
 ## Update database

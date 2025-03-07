@@ -20,6 +20,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.13" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <ProjectReference Include="..\Infrastructure.DataMigrations\Infrastructure.DataMigrations.csproj" />
+    <ProjectReference Include="..\Infrastructure.IdentityMigrations\Infrastructure.IdentityMigrations.csproj" />
     <ProjectReference Include="..\Insfrastructure\Insfrastructure.csproj" />
   </ItemGroup>
 

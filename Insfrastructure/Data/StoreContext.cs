@@ -10,7 +10,7 @@ namespace Insfrastructure.Data
     {
         public StoreContext(DbContextOptions<StoreContext> options) : base(options)
         {
-
+            
         }
 
         //allow to querry entities and retrive data from db

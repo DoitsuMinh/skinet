@@ -1,4 +1,5 @@
-export interface IBrand{
-    id: number;
-    name: string;
+export type Brand = {
+  name: string,
+  id: number,
+  isChecked: boolean
 }

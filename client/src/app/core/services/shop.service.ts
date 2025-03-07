@@ -1,13 +1,15 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
-import { Pagination } from 'src/app/models/pagination';
-import { Product } from 'src/app/models/product';
-import { FilteredProduct } from 'src/app/models/filteredProduct';
-import { ShopParams } from 'src/app/models/shopParams';
+import { inject, Injectable } from '@angular/core';
+
 import { environment } from 'src/environments/environment';
-import { EMPTY, map, Observable, tap } from 'rxjs';
-import { Type } from 'src/app/models/type';
-import { Brand } from 'src/app/models/brand';
+import { map, Observable } from 'rxjs';
+import { Type } from 'src/app/shared/models/type';
+import { Brand } from 'src/app/shared/models/brand';
+import { FilteredProduct } from 'src/app/shared/models/filteredProduct';
+import { Pagination } from 'src/app/shared/models/pagination';
+import { Product } from 'src/app/shared/models/product';
+import { ShopParams } from 'src/app/shared/models/shopParams';
+
 
 @Injectable({
   providedIn: 'root'

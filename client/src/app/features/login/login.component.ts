@@ -8,9 +8,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { User } from 'src/app/models/user';
 import { CommonModule } from '@angular/common';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
+import { User } from 'src/app/shared/models/user';
 
 @Component({
   selector: 'app-login',

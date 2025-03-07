@@ -1,7 +1,5 @@
 import { Component, DestroyRef, inject, OnDestroy, signal } from '@angular/core';
 import { ShopService } from 'src/app/core/services/shop.service';
-import { Product } from 'src/app/models/product';
-import { ShopParams } from 'src/app/models/shopParams';
 import { ProductItemComponent } from "./product-item/product-item.component";
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormField } from '@angular/material/form-field';
@@ -9,7 +7,6 @@ import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialog } from '@angular/material/dialog';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { FilteredProduct } from 'src/app/models/filteredProduct';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu'
 import { MatSelectionList, MatListOption, MatSelectionListChange } from '@angular/material/list'
 import { catchError, debounceTime, distinctUntilChanged, EMPTY, filter, from, map, Observable, Subscription, switchMap, takeUntil, throwError } from 'rxjs';
@@ -19,7 +16,10 @@ import { FiltersDialogComponent } from './filters-dialog/filters-dialog.componen
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { MatButton, MatMiniFabButton } from '@angular/material/button';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { Pagination } from 'src/app/models/pagination';
+import { Pagination } from 'src/app/shared/models/pagination';
+import { Product } from 'src/app/shared/models/product';
+import { FilteredProduct } from 'src/app/shared/models/filteredProduct';
+import { ShopParams } from 'src/app/shared/models/shopParams';
 
 @Component({
   selector: 'app-shop',

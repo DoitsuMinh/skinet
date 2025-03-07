@@ -8,7 +8,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { ActivatedRoute } from '@angular/router';
 import { ShopService } from 'src/app/core/services/shop.service';
-import { Product } from 'src/app/models/product';
+import { Product } from 'src/app/shared/models/product';
 
 @Component({
   selector: 'app-product-details',

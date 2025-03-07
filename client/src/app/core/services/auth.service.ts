@@ -1,9 +1,10 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, map, switchMap, tap, throwError } from 'rxjs';
-import { Token } from 'src/app/models/token';
-import { User } from 'src/app/models/user';
+import { map, switchMap, tap } from 'rxjs';
+import { Token } from 'src/app/shared/models/token';
+import { User } from 'src/app/shared/models/user';
+
 import { environment } from 'src/environments/environment';
 
 const USER_STORAGE_KEY = 'user';

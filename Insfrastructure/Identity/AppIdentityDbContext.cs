@@ -28,10 +28,6 @@ namespace Insfrastructure.Identity
             // Call the base class implementation
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Ignore<Product>();
-            modelBuilder.Ignore<ProductBrand>();
-            modelBuilder.Ignore<Type>();
-
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(RefreshTokenConfiguration).Assembly);
         }
     }

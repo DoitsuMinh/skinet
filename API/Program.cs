@@ -13,15 +13,22 @@ builder.Services.AddControllers();
 
 #region Configure Database Connection
 var productConnString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<StoreContext>(c => c.UseSqlite(productConnString));
+builder.Services.AddDbContext<StoreContext>(
+    options => options.UseSqlite(productConnString,
+    x => x.MigrationsAssembly("Infrastructure.DataMigrations")
+    ));
 
 var identityConnString = builder.Configuration.GetConnectionString("IdentityConnection");
-builder.Services.AddDbContext<AppIdentityDbContext>(x => x.UseSqlite(identityConnString));
+builder.Services.AddDbContext<AppIdentityDbContext>(
+    options => options.UseSqlite(identityConnString,
+        x => x.MigrationsAssembly("Infrastructure.IdentityMigrations")));
 #endregion
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(c =>
 {
-    var configuration = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis"), true);
+    var connString = builder.Configuration.GetConnectionString("Redis")
+                     ?? throw new Exception("Cannot get redis connection string");
+    var configuration = ConfigurationOptions.Parse(connString, true);
     return ConnectionMultiplexer.Connect(configuration);
 });
 
@@ -33,12 +40,8 @@ builder.Services.AddIdentityServices();
 
 builder.Services.AddJWTAuthenticationServices(builder.Configuration);
 
-#region Configure Appicaltion Services
+#region Configure Application Services
 builder.Services.AddApplicationServices();
-#endregion
-
-#region Configure Cookie Service
-//builder.Services.AddCookieServices();
 #endregion
 
 // Cross-origin resource sharing
@@ -71,6 +74,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 
 app.Run();
