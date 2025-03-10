@@ -1,4 +1,5 @@
 using Core.Enitities.Identity;
+using Insfrastructure.Data;
 using Insfrastructure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +13,11 @@ namespace API.Extensions
     {
         public static IServiceCollection AddIdentityServices(this IServiceCollection services)
         {
+            services.AddAuthorization();
+            services.AddIdentityApiEndpoints<AppUser>()
+                .AddEntityFrameworkStores<StoreContext>();
+
+
             var builder = services.AddIdentity<AppUser, IdentityRole>();
 
             builder = new IdentityBuilder(builder.UserType, builder.Services);

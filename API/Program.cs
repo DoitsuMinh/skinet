@@ -1,6 +1,7 @@
 using API.Extensions;
 using API.Helpers;
 using API.Middleware;
+using Core.Enitities.Identity;
 using Insfrastructure.Data;
 using Insfrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -49,7 +50,7 @@ builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.WithOrigins("https://localhost:4200").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        policy.WithOrigins("https://localhost:4200", "http://localhost:4200").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 
@@ -74,5 +75,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapIdentityApi<AppUser>();
 
 app.Run();
