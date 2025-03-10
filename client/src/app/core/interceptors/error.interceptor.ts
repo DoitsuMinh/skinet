@@ -33,7 +33,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           router.navigateByUrl('/login');
         } else {
           snackbar.error(error.error.message);
-          // router.navigateByUrl('/login');
+          router.navigateByUrl('/login');
         }
       }
       else if (error.status === 404) {

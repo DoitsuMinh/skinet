@@ -12,23 +12,26 @@ export const authGuard: CanActivateFn =
     if (authService.isLoggedIn()) {
       return true;
     }
+    console.log('ath guard here')
+    router.navigate(['/login']);
+    return false;
 
-    // If not logged in, but we have a refresh token in cookie, try to refresh
-    return authService.refreshToken().pipe(
-      switchMap((token: string) => {
-        // After getting a new token, fetch current user
-        return authService.getCurrentUser(token);
-      }),
-      map(() => {
-        // If refresh and user fetch succeeded, allow navigation
-        return true;
-      }),
-      catchError(() => {
-        console.log('auth error')
-        router.navigate(['/login']);
-        return of(false);
-      })
-    );
+    // // If not logged in, but we have a refresh token in cookie, try to refresh
+    // return authService.refreshToken().pipe(
+    //   switchMap((token: string) => {
+    //     // After getting a new token, fetch current user
+    //     return authService.getCurrentUser(token);
+    //   }),
+    //   map(() => {
+    //     // If refresh and user fetch succeeded, allow navigation
+    //     return true;
+    //   }),
+    //   catchError(() => {
+    //     console.log('auth error')
+    //     router.navigate(['/login']);
+    //     return of(false);
+    //   })
+    // );
   };
 
 

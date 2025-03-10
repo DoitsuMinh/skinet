@@ -72,7 +72,6 @@ export class AuthService {
   getToken(email: string) {
     return this.http.post<Token>(`${environment.apiUrl}/token`, { email, pasword: '' }, { withCredentials: true }).pipe(
       tap((result: Token) => {
-        console.log(result)
         const tempUser: User = {
           token: result.accessToken,
           email: '',
@@ -85,7 +84,6 @@ export class AuthService {
   }
 
   getCurrentUser(accessToken: string) {
-
     return this.http.get<User>(`${environment.apiUrl}/account`).pipe(
       map(user => {
         user.token = accessToken;
@@ -99,7 +97,6 @@ export class AuthService {
       map((result: Token) => {
         this.#userSignal.update(currentUser => {
           // if (!currentUser) return null;
-
           return {
             ...currentUser,
             token: result.accessToken
@@ -133,7 +130,7 @@ export class AuthService {
 
   logout() {
     // this.#userSignal.set(null);
-    if (!this.isLoggedIn()) { this.revokeToken().subscribe; }
+    if (!this.isLoggedIn()) { this.revokeToken().subscribe(); }
     this.#userSignal.set(null);
     // localStorage.removeItem(USER_STORAGE_KEY);
   }

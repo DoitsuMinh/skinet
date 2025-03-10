@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection } from "@angular/core";
+import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection } from "@angular/core";
 import { provideRouter } from "@angular/router";
 import { routes } from "./app.routes";
 import { provideHttpClient, withInterceptors } from "@angular/common/http";
@@ -6,6 +6,8 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { authenticationInterceptor } from "./core/interceptors/authentication.interceptor";
 import { errorInterceptor } from "./core/interceptors/error.interceptor";
 import { loadingInterceptor } from "./core/interceptors/loading.interceptor";
+import { InitService } from "./core/services/init.service";
+import { lastValueFrom } from "rxjs";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,6 +21,19 @@ export const appConfig: ApplicationConfig = {
         loadingInterceptor
       ])
     ),
+    provideAppInitializer(() => {
+      const initService = inject(InitService);
 
+      return lastValueFrom(initService.init())
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          const splash = document.getElementById('initial-splash');
+          if (splash) {
+            splash.remove();
+          }
+        })
+    })
   ]
 };

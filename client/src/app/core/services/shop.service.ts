@@ -15,7 +15,7 @@ import { ShopParams } from 'src/app/shared/models/shopParams';
   providedIn: 'root'
 })
 export class ShopService {
-  private env = environment;
+  private apiUrl = environment.apiUrl;
   private http = inject(HttpClient);
   types: Type[] = [];
   brands: Brand[] = [];
@@ -42,27 +42,27 @@ export class ShopService {
     params = params.append('pageSize', shopParams.pageSize);
     params = params.append('pageIndex', shopParams.pageNumber);
 
-    return this.http.get<Pagination<Product>>(`${this.env.apiUrl}/products`, { params });
+    return this.http.get<Pagination<Product>>(`${this.apiUrl}/products`, { params });
   }
 
   getProduct(id: number): Observable<Product> {
-    return this.http.get<Product>(`${this.env.apiUrl}/products/${id}`);
+    return this.http.get<Product>(`${this.apiUrl}/products/${id}`);
   }
 
   getTypes(): Observable<Type[]> {
-    return this.http.get<Type[]>(`${this.env.apiUrl}/products/types`).pipe(
+    return this.http.get<Type[]>(`${this.apiUrl}/products/types`).pipe(
       map((response: Type[]) => this.types = response)
     );
   }
 
   getBrands(): Observable<Brand[]> {
-    return this.http.get<Brand[]>(`${this.env.apiUrl}/products/brands`).pipe(
+    return this.http.get<Brand[]>(`${this.apiUrl}/products/brands`).pipe(
       map((brands: Brand[]) => this.brands = brands)
     );
   }
 
   getFilteredProduct(searchValue: string): Observable<FilteredProduct[]> {
-    return this.http.get<FilteredProduct[]>(`${this.env.apiUrl}/products/filtered-products?searchValue=${searchValue}`);
+    return this.http.get<FilteredProduct[]>(`${this.apiUrl}/products/filtered-products?searchValue=${searchValue}`);
   }
 
   clearMemory(): void {
