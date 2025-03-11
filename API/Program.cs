@@ -13,16 +13,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 #region Configure Database Connection
-var productConnString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<StoreContext>(
-    options => options.UseSqlite(productConnString,
-    x => x.MigrationsAssembly("Infrastructure.DataMigrations")
-    ));
+//var productConnString = builder.Configuration.GetConnectionString("DefaultConnection");
+//builder.Services.AddDbContext<StoreContext>(
+//    options => options.UseSqlite(productConnString,
+//    x => x.MigrationsAssembly("Infrastructure.DataMigrations")
+//    ));
 
-var identityConnString = builder.Configuration.GetConnectionString("IdentityConnection");
-builder.Services.AddDbContext<AppIdentityDbContext>(
-    options => options.UseSqlite(identityConnString,
-        x => x.MigrationsAssembly("Infrastructure.IdentityMigrations")));
+//var identityConnString = builder.Configuration.GetConnectionString("IdentityConnection");
+//builder.Services.AddDbContext<AppIdentityDbContext>(
+//    options => options.UseSqlite(identityConnString,
+//        x => x.MigrationsAssembly("Infrastructure.IdentityMigrations")));
+
+builder.Services.GetSecretConfigureServices(builder.Configuration);
 #endregion
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(c =>
@@ -50,7 +52,10 @@ builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.WithOrigins("https://localhost:4200", "http://localhost:4200").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        policy.WithOrigins("https://localhost:4200", "http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -75,6 +80,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapIdentityApi<AppUser>();
+app.MapGroup("api").MapIdentityApi<AppUser>(); // api/login
 
 app.Run();

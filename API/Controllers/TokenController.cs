@@ -47,13 +47,6 @@ namespace API.Controllers
 
             var accessToken = _authenticationService.GenerateAccessToken(user, userRoleResult.Value);
 
-            Response.AppendCookie(
-                _configuration["Cookie:Name"],
-                refreshToken,
-                TimeUnit.Minutes,
-                int.Parse(_configuration["Cookie:ExpirationInMinutes"])
-                );
-
             return Ok(new TokenDto { AccessToken = accessToken });
         }
 

@@ -32,20 +32,20 @@ namespace API.Extensions
                 await StoreContextSeed.SeedAsync(context, logger);
 
                 // Identity Seeding
-                var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-                var userManager = services.GetRequiredService<UserManager<AppUser>>();
+                //var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                //var userManager = services.GetRequiredService<UserManager<AppUser>>();
 
-                var identityContext = services.GetRequiredService<AppIdentityDbContext>();
-                await identityContext.Database.EnsureCreatedAsync();
-                await identityContext.Database.MigrateAsync();
+                //var identityContext = services.GetRequiredService<AppIdentityDbContext>();
+                //await identityContext.Database.EnsureCreatedAsync();
+                //await identityContext.Database.MigrateAsync();
 
-                await Task.WhenAll(
-                    AppIdentityDbContextSeed.SeedRolesAsync(roleManager),
-                    AppIdentityDbContextSeed.SeedUserAsync(userManager)
-                );
-                await AppIdentityDbContextSeed.SeedRoleClaimsAsync(roleManager);
-                await AppIdentityDbContextSeed.SeedUserRolesAsync(userManager);
-                await AppIdentityDbContextSeed.SeedUserClaimsAsync(userManager, roleManager);
+                //await Task.WhenAll(
+                //    AppIdentityDbContextSeed.SeedRolesAsync(roleManager),
+                //    AppIdentityDbContextSeed.SeedUserAsync(userManager)
+                //);
+                //await AppIdentityDbContextSeed.SeedRoleClaimsAsync(roleManager);
+                //await AppIdentityDbContextSeed.SeedUserRolesAsync(userManager);
+                //await AppIdentityDbContextSeed.SeedUserClaimsAsync(userManager, roleManager);
 
                 logger.LogInformation("Database migration and seeding completed successfully.");
             }

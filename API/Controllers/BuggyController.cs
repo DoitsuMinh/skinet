@@ -2,9 +2,11 @@ using API.Errors;
 using Insfrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
+    [Authorize(AuthenticationSchemes ="bearer")]
     public class BuggyController : BaseApiController
     {
         private readonly StoreContext _context;
@@ -52,6 +54,14 @@ namespace API.Controllers
         public ActionResult GetBadRequest(int id)
         {
             return Ok();
+        }
+
+        [HttpGet("secret")]
+        public IActionResult GetServerError()
+        {
+            var name = User.FindFirst(ClaimTypes.Email)?.Value;
+            var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Ok("Name: "+name+ ". Your ID is " + id);
         }
     }
 }

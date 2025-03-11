@@ -11,7 +11,6 @@ namespace API.Controllers
 {
     [Authorize(AuthenticationSchemes ="bearer")]
     [Route("api/[controller]")]
-    [ApiController]
     public class ProductsController : BaseApiController
     {
         private readonly IGenericRepository<Product> _productsRepo;

@@ -34,7 +34,7 @@ namespace Insfrastructure.Services
                 Subject = new ClaimsIdentity(
                 [
                     new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.GivenName, user.DisplayName),
+                    new Claim(ClaimTypes.GivenName, user.Email),
                     new Claim(ClaimTypes.Role, userRole)
                 ]),
                 Expires = DateTime.UtcNow.AddMinutes(int.Parse(configuration["Token:ExpirationInMinutes"])),
@@ -49,7 +49,7 @@ namespace Insfrastructure.Services
         }
 
         /// <summary>
-        /// Creates an access token including user role, email, and display name.
+        /// Creates an access token including user role, email.
         /// The token is valid for 30 minutes.
         /// </summary>
         /// <param name="user">The AppUser object containing user details.</param>
@@ -68,7 +68,7 @@ namespace Insfrastructure.Services
                 Subject = new ClaimsIdentity(
                 [
                     new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.GivenName, user.DisplayName),
+                    new Claim(ClaimTypes.GivenName, user.Email),
                     new Claim(ClaimTypes.Role, userRole)
                 ]),
                 Expires = DateTime.UtcNow.AddMinutes(int.Parse(configuration["Token:ExpirationInMinutes"])),

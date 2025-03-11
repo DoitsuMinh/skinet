@@ -6,10 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Insfrastructure.Data
 {
-    public class RefreshTokenRepository(UserManager<AppUser> userManager, AppIdentityDbContext identityDbContext) : IRefreshTokenRepository
+    public class RefreshTokenRepository(UserManager<AppUser> userManager
+        //,AppIdentityDbContext identityDbContext
+        ) : IRefreshTokenRepository
     {
         private readonly UserManager<AppUser> _userManager = userManager;
-        private readonly AppIdentityDbContext _identityDbContext = identityDbContext;
+        //private readonly AppIdentityDbContext _identityDbContext = identityDbContext;
         private const string LOGIN_PROVIDER = "Identity";
         private const string TOKEN_NAME = "RefreshToken";
 
@@ -31,14 +33,16 @@ namespace Insfrastructure.Data
         /// <param name="refreshToken"></param>
         public async Task<bool> ValidateRefreshTokenAsync(AppUser user)
         {
-            var storedToken = await _identityDbContext.Set<AppUserToken>().FirstOrDefaultAsync(x => x.UserId == user.Id && x.LoginProvider == LOGIN_PROVIDER && x.Name == TOKEN_NAME);
-            return storedToken != null && !string.IsNullOrEmpty(storedToken.Value);
+            //var storedToken = await _identityDbContext.Set<AppUserToken>().FirstOrDefaultAsync(x => x.UserId == user.Id && x.LoginProvider == LOGIN_PROVIDER && x.Name == TOKEN_NAME);
+            //return storedToken != null && !string.IsNullOrEmpty(storedToken.Value);
+            throw new NotImplementedException();
         }
 
         public async Task<string> GetRefreshTokenAsync(AppUser user)
         {
-            var storedToken = await _identityDbContext.Set<AppUserToken>().FirstOrDefaultAsync(x => x.UserId == user.Id && x.LoginProvider == LOGIN_PROVIDER && x.Name == TOKEN_NAME);
-            return storedToken?.Value;
+            //var storedToken = await _identityDbContext.Set<AppUserToken>().FirstOrDefaultAsync(x => x.UserId == user.Id && x.LoginProvider == LOGIN_PROVIDER && x.Name == TOKEN_NAME);
+            //return storedToken?.Value;
+            throw new NotImplementedException();
         }
     }
 }

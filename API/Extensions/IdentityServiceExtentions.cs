@@ -18,18 +18,18 @@ namespace API.Extensions
                 .AddEntityFrameworkStores<StoreContext>();
 
 
-            var builder = services.AddIdentity<AppUser, IdentityRole>();
+            //var builder = services.AddIdentity<AppUser, IdentityRole>();
 
-            builder = new IdentityBuilder(builder.UserType, builder.Services);
-            builder.AddRoles<IdentityRole>();
-            builder.AddEntityFrameworkStores<AppIdentityDbContext>();
-            builder.AddDefaultTokenProviders();
-            builder.AddSignInManager();
+            //builder = new IdentityBuilder(builder.UserType, builder.Services);
+            //builder.AddRoles<IdentityRole>();
+            //builder.AddEntityFrameworkStores<AppIdentityDbContext>();
+            //builder.AddDefaultTokenProviders();
+            //builder.AddSignInManager();
 
-            services.Configure<IdentityOptions>(options =>
-            {
-                options.User.RequireUniqueEmail = true;
-            });
+            //services.Configure<IdentityOptions>(options =>
+            //{
+            //    options.User.RequireUniqueEmail = true;
+            //});
 
            
             return services;

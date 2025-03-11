@@ -8,8 +8,4 @@
 
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Insfrastructure\Insfrastructure.csproj" />
-  </ItemGroup>
-
 </Project>

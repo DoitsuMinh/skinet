@@ -8,7 +8,6 @@ namespace API.Controllers
 {
     [Authorize(AuthenticationSchemes = "bearer")]
     [Route("api/[controller]")]
-    [ApiController]
     public class CartController(ICartService cartService) : BaseApiController
     {
         [HttpGet]

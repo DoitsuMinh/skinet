@@ -2,9 +2,11 @@ namespace API.Dtos
 {
     public class AddressDto
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
+        public string Line1 { get; set; } = string.Empty;
+        public string Line2 { get; set; }
+        public string City { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
+        public string PostalCode { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
     }
 }
