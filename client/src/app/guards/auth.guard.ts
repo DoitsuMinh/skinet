@@ -12,8 +12,9 @@ export const authGuard: CanActivateFn =
     if (authService.isLoggedIn()) {
       return true;
     }
-    console.log('ath guard here')
-    router.navigate(['/login']);
+    // console.log('ath guard here')
+    // debugger;
+    router.navigate(['account/login']);
     return false;
 
     // // If not logged in, but we have a refresh token in cookie, try to refresh

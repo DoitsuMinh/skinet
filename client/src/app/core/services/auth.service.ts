@@ -1,9 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { map, switchMap, tap } from 'rxjs';
 import { Token } from 'src/app/shared/models/token';
-import { User } from 'src/app/shared/models/user';
+import { Address, User } from 'src/app/shared/models/user';
 
 import { environment } from 'src/environments/environment';
 
@@ -57,7 +57,7 @@ export class AuthService {
   login(email: string, password: string) {
     return this.validateLoginInput(email, password).pipe(
       // After validating credentials, get the token
-      switchMap(() => this.getToken(email)),
+      // switchMap(() => this.getToken(email)),
       // After getting the token, get the current user
       switchMap((tokenResponse: Token) => {
         return this.getCurrentUser(tokenResponse.accessToken);
@@ -66,25 +66,43 @@ export class AuthService {
   }
 
   validateLoginInput(email: string, password: string) {
-    return this.http.post(`${environment.apiUrl}/account/login`, { email, password })
-  }
-
-  getToken(email: string) {
-    return this.http.post<Token>(`${environment.apiUrl}/token`, { email, pasword: '' }, { withCredentials: true }).pipe(
+    let params = new HttpParams();
+    params = params.append('useCookies', true);
+    return this.http.post<Token>(`${environment.apiUrl}/account/login`, { email, password }, { params }).pipe(
       tap((result: Token) => {
         const tempUser: User = {
           token: result.accessToken,
           email: '',
-          displayName: '',
+          firstName: '',
+          lastName: '',
+          address: null,
           role: ''
         }
         this.#userSignal.set(tempUser);
+        return result;
       })
     )
   }
 
+  getToken(email: string) {
+    return this.http.post<Token>(`${environment.apiUrl}/token`, { email, pasword: '' },
+      { withCredentials: true }).pipe(
+        tap((result: Token) => {
+          const tempUser: User = {
+            token: result.accessToken,
+            email: '',
+            firstName: '',
+            lastName: '',
+            address: null,
+            role: ''
+          }
+          this.#userSignal.set(tempUser);
+        })
+      )
+  }
+
   getCurrentUser(accessToken: string) {
-    return this.http.get<User>(`${environment.apiUrl}/account`).pipe(
+    return this.http.get<User>(`${environment.apiUrl}/account/user-info`).pipe(
       map(user => {
         user.token = accessToken;
         this.#userSignal.set(user);
@@ -108,7 +126,11 @@ export class AuthService {
   }
 
   revokeToken() {
-    return this.http.post(`${environment.apiUrl}/token/revoke`, null, { withCredentials: true })
+    return this.http.post(`${environment.apiUrl}/token/revoke`, {}, { withCredentials: true })
+  }
+
+  updateAddress(address: Address) {
+    return this.http.post(`${environment.apiUrl}/account/adress`, address);
   }
 
   // getCurrentUser_LocalStorage(): void {
@@ -130,7 +152,7 @@ export class AuthService {
 
   logout() {
     // this.#userSignal.set(null);
-    if (!this.isLoggedIn()) { this.revokeToken().subscribe(); }
+    if (this.isLoggedIn()) { this.revokeToken().subscribe(); }
     this.#userSignal.set(null);
     // localStorage.removeItem(USER_STORAGE_KEY);
   }

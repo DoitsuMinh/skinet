@@ -34,12 +34,12 @@ export class HeaderComponent {
 
   onLogOut(): void {
     this.authService.logout();
-    setTimeout(() => {
-      if (!this.authService.isLoggedIn()) {
-        this.snackBar.success('Logout successful!');
+    // setTimeout(() => {
+    if (!this.authService.isLoggedIn()) {
+      this.snackBar.success('Logout successful!');
+    }
+    this.router.navigate(['account/login']);
 
-        this.router.navigate(['/login']);
-      }
-    }, this.TIME_OUT);
+    // }, this.TIME_OUT);
   }
 }

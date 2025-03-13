@@ -34,7 +34,7 @@ namespace Insfrastructure.Services
                 Subject = new ClaimsIdentity(
                 [
                     new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.GivenName, user.Email),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
                     new Claim(ClaimTypes.Role, userRole)
                 ]),
                 Expires = DateTime.UtcNow.AddMinutes(int.Parse(configuration["Token:ExpirationInMinutes"])),
@@ -68,7 +68,7 @@ namespace Insfrastructure.Services
                 Subject = new ClaimsIdentity(
                 [
                     new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.GivenName, user.Email),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
                     new Claim(ClaimTypes.Role, userRole)
                 ]),
                 Expires = DateTime.UtcNow.AddMinutes(int.Parse(configuration["Token:ExpirationInMinutes"])),

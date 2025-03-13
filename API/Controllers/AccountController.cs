@@ -112,8 +112,6 @@ namespace API.Controllers
             };
 
             var result = await _signInManager.UserManager.CreateAsync(user, registerDto.Password);
-
-            //var registerResult = await _authenticationService.RegisterByPassAsync(user, registerDto.Password, registerDto.Role);
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
@@ -123,6 +121,13 @@ namespace API.Controllers
                 return ValidationProblem();
             }
 
+            var tokenResult = await _authenticationService.CreateRefreshTokenAsync(user);
+
+            if (!tokenResult.IsSuccess)
+            {
+                return BadRequest(tokenResult.Error);
+            }
+
             return Created();
         }
 
@@ -130,7 +135,14 @@ namespace API.Controllers
         [HttpPost("logout")]
         public async Task<ActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            var user = await _signInManager.UserManager.GetUserAsync(User);
+            var result = await _signInManager.UserManager.RemoveAuthenticationTokenAsync(user, "WebBrowser", "RefreshToken");
+            if (!result.Succeeded)
+            {
+                
+            }
+
+            await _signInManager.SignOutAsync();            
 
             return NoContent();
         }

@@ -20,6 +20,11 @@ namespace Insfrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ProductConfiguration).Assembly);
+
+            modelBuilder.Entity<AppUserToken>(e =>
+            {
+                e.Property(p => p.ExpireDateUTC).HasDefaultValue(null);
+            });
         }
     }
 }

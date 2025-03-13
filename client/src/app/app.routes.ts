@@ -6,10 +6,12 @@ import { ProductDetailsComponent } from "./features/shop/product-details/product
 import { HomeComponent } from "./layout/home/home.component";
 import { CartComponent } from "./features/cart/cart.component";
 import { CheckoutComponent } from "./features/checkout/checkout.component";
+import { RegisterComponent } from "./features/register/register.component";
 
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
+  { path: 'account/login', component: LoginComponent },
+  { path: 'account/register', component: RegisterComponent },
   {
     path: '',
     runGuardsAndResolvers: 'always',

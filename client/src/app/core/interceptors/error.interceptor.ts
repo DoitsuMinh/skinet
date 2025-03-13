@@ -30,10 +30,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           snackbar.error(error.error.message);
 
           authService.logout();
-          router.navigateByUrl('/login');
+          router.navigateByUrl('account/login');
         } else {
           snackbar.error(error.error.message);
-          router.navigateByUrl('/login');
+          router.navigateByUrl('account/login');
         }
       }
       else if (error.status === 404) {
