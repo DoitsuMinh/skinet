@@ -1,1 +1,42 @@
-<p>register works!</p>
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>Welcome</mat-card-title>
+      <mat-card-subtitle>Please register to continue</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <app-text-input label="First name" formControlName="firstName" />
+        <app-text-input label="Last name" formControlName="lastName" />
+        <app-text-input label="Email" formControlName="email" />
+        <app-text-input label="Password" formControlName="password" />
+
+        @if (validationErrors) {
+          <div class="mb-3 bg-red-100 p-4 text-red-600">
+            <ul class="list-disc px-3">
+              @for (error of validationErrors; track $index) {
+                <li>{{ error }}</li>
+              }
+            </ul>
+          </div>
+        }
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="registerForm.invalid"
+          class="w-full">
+          Register
+        </button>
+      </form>
+    </mat-card-content>
+
+    <mat-card-footer class="text-center">
+      <p>
+        Already have an account ?
+        <a href="#" class="text-primary" routerLink="/account/login">Login</a>
+      </p>
+    </mat-card-footer>
+  </mat-card>
+</div>

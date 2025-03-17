@@ -34,28 +34,3 @@ export const authGuard: CanActivateFn =
     //   })
     // );
   };
-
-
-/**
-* return of(authService.isRefreshingToken()).pipe(
-           map(() => {
-             authService.startRefreshingToken();
-             return authService.isRefreshingToken()
-           }),
-           tap(() => { console.log(authService.isRefreshingToken()) }),
-           filter((isRefreshing: boolean) => isRefreshing),
-           switchMap(() => authService.refreshToken()),
-           switchMap((token: string) => authService.getCurrentUser(token)),
-           switchMap(() => {
-             // clone the original request with the new token
-             const updatedReq = req.clone({
-               setHeaders: {
-                 Authorization: `Bearer ${authService.user().token}`
-               }
-             })
-             authService.completeRefreshToken();
-             // return the original request
-             return next(updatedReq);
-           })
-         )
-*/

@@ -7,9 +7,7 @@ using Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Security.Claims;
+using static API.Enums.TimeUnits;
 
 namespace API.Controllers
 {
@@ -24,9 +22,9 @@ namespace API.Controllers
             , ITokenService tokenService, IMapper mapper, IAuthenticationService authenticationService)
         {
             _mapper = mapper;
-            _signInManager = signInManager;
-            _userManager = userManager;
-            _authenticationService = authenticationService;
+            _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
         }
 
         //[Authorize(AuthenticationSchemes ="bearer")]
@@ -81,17 +79,21 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
         [HttpPost("login")]
-        public async Task<ActionResult<UserDto>> Login([FromBody] LoginDto loginDto)
+        public async Task<ActionResult<AuthenticatedResponse>> Login([FromBody] LoginDto loginModel)
         {
-            var user = await _signInManager.UserManager.FindByEmailAsync(loginDto.Email);
-            if (user is null) return BadRequest(new ApiResponse(400));
+            if (loginModel is null) return BadRequest("Invalid client request");
+            var user = await _signInManager.UserManager.FindByEmailAsync(loginModel.Email);
+            if (user is null) return Unauthorized(new ApiResponse(401, "Email not existed"));
 
-            var result = await _signInManager.UserManager.CheckPasswordAsync(user, loginDto.Password);
-            if (!result) return BadRequest(new ApiResponse(400));
+            var result = await _signInManager.UserManager.CheckPasswordAsync(user, loginModel.Password);
+            if (!result) return Unauthorized(new ApiResponse(401, "Incorrect Password"));
 
-            var token = _authenticationService.GenerateAccessToken(user, "Customer");
+            var tokenResult = await _authenticationService.GenerateTokenAsync(user);
+            if (!tokenResult.IsSuccess) return Unauthorized(new ApiResponse(401));
+            var (accessToken, refreshToken) = tokenResult.Value;
+            Response.AppendTokenCookie(refreshToken, TimeUnit.Hours, 1);
 
-            return Ok(new TokenDto { AccessToken = token });
+            return Ok(new AuthenticatedResponse(accessToken));
         }
 
         /// <summary>
@@ -136,13 +138,9 @@ namespace API.Controllers
         public async Task<ActionResult> Logout()
         {
             var user = await _signInManager.UserManager.GetUserAsync(User);
-            var result = await _signInManager.UserManager.RemoveAuthenticationTokenAsync(user, "WebBrowser", "RefreshToken");
-            if (!result.Succeeded)
-            {
-                
-            }
+            await _authenticationService.RevokeRefreshTokenAsync(user.Id);
 
-            await _signInManager.SignOutAsync();            
+            await _signInManager.SignOutAsync();
 
             return NoContent();
         }
@@ -159,14 +157,15 @@ namespace API.Controllers
                 user.FirstName,
                 user.LastName,
                 user.Email,
-                Address = _mapper.Map<AddressDto>(user.Address)
+                Address = _mapper.Map<AddressDto>(user.Address),
+                Token = string.Empty
             });
         }
 
         [HttpGet]
         public ActionResult GetAuthState()
         {
-            return Ok(new { IsAuthenticated = User.Identity?.IsAuthenticated ?? false});
+            return Ok(new { IsAuthenticated = User.Identity?.IsAuthenticated ?? false });
         }
 
         [Authorize]

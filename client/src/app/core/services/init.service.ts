@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { CartService } from './cart.service';
-import { filter, map, Observable, of, switchMap } from 'rxjs';
+import { filter, Observable, of, switchMap } from 'rxjs';
 import { Cart } from 'src/app/shared/models/cart';
 import { AuthService } from './auth.service';
 
@@ -12,6 +12,9 @@ export class InitService {
   private authService = inject(AuthService);
 
   init(): Observable<Cart> {
+    if (window.location.href.includes('/account/')) {
+      return of(null);
+    }
     return this.getCurrentUserToken().pipe(
       switchMap(() => this.getCartObservable())
     )
@@ -27,7 +30,7 @@ export class InitService {
     return of(this.authService.isLoggedIn()).pipe(
       filter((x) => !x),
       switchMap(() => this.authService.refreshToken()),
-      map((token: string) => this.authService.getCurrentUser(token))
+      switchMap((token: string) => this.authService.getCurrentUser(token))
     )
   }
 }

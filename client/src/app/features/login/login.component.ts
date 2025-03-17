@@ -6,11 +6,11 @@ import { MatError, MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { Router } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { CommonModule } from '@angular/common';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { User } from 'src/app/shared/models/user';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +24,9 @@ import { User } from 'src/app/shared/models/user';
     MatIconModule,
     MatCheckboxModule,
     MatError,
-    CommonModule
+    RouterLink,
+    CommonModule,
+    RouterLink
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'

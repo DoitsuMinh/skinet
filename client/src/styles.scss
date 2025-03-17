@@ -64,3 +64,43 @@ button.match-input-height {
   --mat-snack-bar-button-color: #fff;
   --mdc-snackbar-supporting-text-color: #fff;
 }
+
+.login-container {
+  @apply flex items-center justify-center min-h-screen bg-gray-100;
+}
+
+.login-card {
+  @apply w-full max-w-md p-6 shadow-lg;
+
+  mat-card-header {
+    @apply flex flex-col items-center mb-6;
+
+    mat-card-title {
+      @apply text-2xl font-bold text-gray-800;
+    }
+
+    mat-card-subtitle {
+      @apply text-gray-600 mt-1;
+    }
+  }
+
+  mat-card-content {
+    @apply flex flex-col gap-4;
+
+    mat-form-field {
+      @apply mb-2;
+    }
+  }
+
+  mat-card-footer {
+    @apply mt-4 text-gray-600;
+
+    a {
+      @apply text-blue-600 hover:underline;
+    }
+  }
+
+  button[type="submit"] {
+    @apply py-2 text-lg font-medium;
+  }
+}

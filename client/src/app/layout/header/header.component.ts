@@ -8,6 +8,8 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { BusyService } from 'src/app/core/services/busy.service';
 import { CartService } from 'src/app/core/services/cart.service';
+import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
+import { MatDivider } from '@angular/material/divider';
 
 @Component({
   selector: 'app-header',
@@ -18,28 +20,34 @@ import { CartService } from 'src/app/core/services/cart.service';
     MatBadge,
     RouterLink,
     RouterLinkActive,
-    MatProgressBar
+    MatProgressBar,
+    MatMenu,
+    MatDivider,
+    MatMenuItem,
+    MatMenuTrigger
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
   authService = inject(AuthService);
-  router = inject(Router);
+  private router = inject(Router);
   snackBar = inject(SnackbarService);
   busyService = inject(BusyService);
   cartService = inject(CartService);
 
-  readonly TIME_OUT = 500;
-
   onLogOut(): void {
-    this.authService.logout();
-    // setTimeout(() => {
-    if (!this.authService.isLoggedIn()) {
-      this.snackBar.success('Logout successful!');
-    }
-    this.router.navigate(['account/login']);
+    this.authService.logout().subscribe({
+      next: () => {
+        this.authService.currentUser.set(null);
+        this.snackBar.success('Logout successful!');
+        this.router.navigate(['/'])
+      }
+    });
 
-    // }, this.TIME_OUT);
+    // if (!this.authService.isLoggedIn()) {
+    //  
+    // }
+    // this.router.navigate(['account/login']);
   }
 }

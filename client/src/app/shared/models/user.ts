@@ -1,10 +1,12 @@
+import { Token } from "./token";
+
 export type User = {
   email: string;
-  token: string;
   firstName: string;
   lastName: string;
   address: Address;
   role: string;
+  token: string
 }
 
 export type Address = {

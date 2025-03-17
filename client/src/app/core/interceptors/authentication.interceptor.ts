@@ -8,9 +8,14 @@ export const authenticationInterceptor: HttpInterceptorFn = (req, next) => {
   // Add token to request if user is logged in
   if (authService.isLoggedIn()) {
     req = req.clone({
+      withCredentials: true,
       setHeaders: {
-        Authorization: `Bearer ${authService.user().token}`
-      }
+        Authorization: `Bearer ${authService.user().token}`,
+      },
+    });
+  } else {
+    req = req.clone({
+      withCredentials: true,
     });
   }
   return next(req);

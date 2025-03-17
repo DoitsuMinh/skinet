@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { NavigationExtras, Router } from '@angular/router';
 import { SnackbarService } from '../services/snackbar.service';
-import { catchError, filter, map, of, switchMap, tap, throwError } from 'rxjs';
+import { catchError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {

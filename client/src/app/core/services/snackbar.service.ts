@@ -14,6 +14,13 @@ export class SnackbarService {
     })
   }
 
+  warn(message: string) {
+    this.snackbar.open(message, 'Close', {
+      duration: 2000,
+      panelClass: ['snack-warning']
+    })
+  }
+
   success(message: string) {
     this.snackbar.open(message, 'Close', {
       duration: 5000,

@@ -26,7 +26,7 @@ export const appConfig: ApplicationConfig = {
 
       return lastValueFrom(initService.init())
         .catch((err) => {
-          console.log(err)
+          console.error(err)
         })
         .finally(() => {
           const splash = document.getElementById('initial-splash');

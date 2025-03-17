@@ -2,11 +2,8 @@
 using Core.Enitities.Identity;
 using Core.Interfaces;
 using Insfrastructure.Data;
-using Insfrastructure.Identity;
-using Insfrastructure.Infrastructures;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Insfrastructure.Services
 {
@@ -52,8 +49,9 @@ namespace Insfrastructure.Services
             return Result<string>.Success(userRoles.FirstOrDefault());
         }
 
-        public async Task<Result<string>> UpdateRefreshTokenAsync(AppUser user)
+        public async Task<Result<(string, string)>> GenerateTokenAsync(AppUser user)
         {
+            var accessToken = _tokenService.CreateAccessToken(user, "Customer");
             var refreshToken = _tokenService.GenerateRefreshToken();
             //var userToken = new AppUserToken()
             //{
@@ -64,49 +62,45 @@ namespace Insfrastructure.Services
             //    ExpireDateUTC = DateTime.UtcNow.AddHours(1),
             //};
 
-            var result = false;
-            using (var dbContext = _storeContext)
-            {
-                var userToken = await _storeContext.Set<AppUserToken>().FirstOrDefaultAsync(x => x.UserId == user.Id && x.Name == "RefreshToken");
-                userToken.ExpireDateUTC = DateTime.UtcNow.AddHours(1);
-                userToken.Value = refreshToken;
-                result = await _storeContext.SaveChangesAsync() > 0;
-            }
 
-            if (!result) return Result<string>.Failure("Failed to update refresh token");
+            var userToken = await _storeContext.Set<AppUserToken>().FirstOrDefaultAsync(x => x.UserId == user.Id && x.Name == "RefreshToken");
+            if(userToken is null) return Result<(string, string)>.Failure(string.Empty);
+            userToken.ExpireDateUTC = DateTime.UtcNow.AddHours(1);
+            userToken.Value = refreshToken;
+            var result = await _storeContext.SaveChangesAsync() > 0;
 
-            return Result<string>.Success(refreshToken);
+            if (!result) return Result<(string, string)>.Failure("Failed to update refresh token");
+
+            return Result<(string, string)>.Success((accessToken, refreshToken));
         }
 
         public async Task<Result<string>> CreateRefreshTokenAsync(AppUser user)
         {
-            var refreshToken = _tokenService.GenerateRefreshToken();
-            var userToken = new AppUserToken()
+            try
             {
-                UserId = user.Id,
-                LoginProvider = "WebBrowser",
-                Name = "RefreshToken",
-                Value = refreshToken,
-                ExpireDateUTC = DateTime.UtcNow.AddHours(1),
-            };
+                var refreshToken = _tokenService.GenerateRefreshToken();
+                var userToken = new AppUserToken()
+                {
+                    UserId = user.Id,
+                    LoginProvider = "WebBrowser",
+                    Name = "RefreshToken",
+                    Value = refreshToken,
+                    ExpireDateUTC = DateTime.UtcNow.AddHours(1),
+                };
 
-            var result = false;
-            using (var dbContext = _storeContext)
+                var result = false;
+                using (var dbContext = _storeContext)
+                {
+                    await _storeContext.Set<AppUserToken>().AddAsync(userToken);
+                    result = await _storeContext.SaveChangesAsync() > 0;
+                }
+
+                return Result<string>.Success(refreshToken);
+            } catch (Exception ex)
             {
-                await _storeContext.Set<AppUserToken>().AddAsync(userToken);
-                result = await _storeContext.SaveChangesAsync() > 0;
+                return Result<string>.Failure("Failed to create token");
             }
-         
-            if (!result) return Result<string>.Failure("Failed to create refresh token");
-
-            return Result<string>.Success(refreshToken);
-        }
-
-        public async Task<Result<bool>> ValidateRefreshTokenAsync(AppUser user)
-        {
-            var result = await _refreshTokenRepo.ValidateRefreshTokenAsync(user);
-            if (!result) return Result<bool>.Failure("Refresh token not exists");
-            return Result<bool>.Success(true);
+           
         }
 
         public async Task<Result<string>> GetRefreshTokenAsync(AppUser user)
@@ -117,7 +111,7 @@ namespace Insfrastructure.Services
             //return Result<string>.Success(tokenResult.Token);
         }
 
-        public async Task<Result<bool>> RevokeRefreshTokenAsync(string userID)
+        public async Task<Result<bool>> RevokeRefreshTokenAsync(string userId)
         {
             //throw new NotImplementedException();
             //var refreshTokenRes = await _identityDbContext.RefreshTokens.FirstOrDefaultAsync(r => r.Token == refreshToken);
@@ -129,7 +123,7 @@ namespace Insfrastructure.Services
             //return Result<bool>.Success(true);
             using (var dbContext = _storeContext)
             {
-                var userToken = await _storeContext.Set<AppUserToken>().FirstOrDefaultAsync(x => x.UserId == userID && x.Name == "RefreshToken");
+                var userToken = await _storeContext.Set<AppUserToken>().FirstOrDefaultAsync(x => x.UserId == userId && x.Name == "RefreshToken");
                 userToken.Value = string.Empty;
                 await _storeContext.SaveChangesAsync();
             }
@@ -165,8 +159,15 @@ namespace Insfrastructure.Services
             //}
         }
 
+        public async Task<Result<AppUser>> GetUserByIdAsync(string userId)
+        {
+            var user = await _storeContext.Set<AppUser>().FirstOrDefaultAsync(x => x.Id == userId);
+            if (user is null) return Result<AppUser>.Failure(string.Empty);
 
-        public async Task<Result<Response>> Test(string token)
+            return Result<AppUser>.Success(user);
+        }
+
+        public async Task<Result<AuthenticatedResponse>> Test(string token)
         {
             throw new NotImplementedException();
             //RefreshToken? refreshToken = await _identityDbContext.RefreshTokens.Include(r => r.User).FirstOrDefaultAsync(r => r.Token == token);
@@ -178,27 +179,19 @@ namespace Insfrastructure.Services
             //return Result<Response>.Success(new Response("", ""));
         }
 
-        public async Task<Result<AppUser>> ValidateRefreshTokenAsync(string token)
+        public async Task<Result<AppUser>> GetUserByRefreshTokenAsync(string refreshToken)
         {
-            throw new NotImplementedException();
+
             //try
             //{
-            //    RefreshToken? refreshToken = await _identityDbContext.RefreshTokens.Include(r => r.User).FirstOrDefaultAsync(r => r.Token == token);
+            var token = await _storeContext.Set<AppUserToken>().FirstOrDefaultAsync(x => x.Value == refreshToken
+                                                                                             && x.Name == "RefreshToken");
 
-            //    if (refreshToken is null || refreshToken.ExpiresOnUtc < DateTime.UtcNow)
-            //    {
-            //        return Result<AppUser>.Failure("The refresh token is expired");
-            //    }
-
-            //    var user = await _identityDbContext.Users.FirstOrDefaultAsync(r => r.Id == refreshToken.UserId);
-            //    return Result<AppUser>.Success(user);
-            //}
-            //catch (Exception ex)
-            //{
-            //    // Log the exception
-            //    //_logger.LogError(ex, "Error validating refresh token");
-            //    return Result<AppUser>.Failure("Error validating refresh token");
-            //}
+            if (token is null || token.Value != refreshToken || token.ExpireDateUTC <= DateTime.UtcNow)
+            {
+                return Result<AppUser>.Failure("Invalid client request");
+            }
+            return await GetUserByIdAsync(token.UserId);
         }
 
         public async Task<Result<bool>> LoginUserAsync(string email, string password)
@@ -219,17 +212,6 @@ namespace Insfrastructure.Services
             return _tokenService.CreateAccessToken(user, userRole);
         }
 
-        public async Task<Result<AppUser>> GetUserByRefreshTokenAsync(string token)
-        {
-            throw new NotImplementedException();
-            //var tokenResult = await _identityDbContext.RefreshTokens.FirstOrDefaultAsync(x => x.Token == token);
-            //if (tokenResult is null) return Result<AppUser>.Failure("Invalid token");
-
-            //var user = await _identityDbContext.Users.FirstOrDefaultAsync(x => x.Id == tokenResult.UserId);
-            //if (user is null) return Result<AppUser>.Failure("user not found");
-            //return Result<AppUser>.Success(user);
-
-        }
 
         public Task<Result<AppUser>> GetUserByRefreshTokenAsync(AppUser user)
         {
