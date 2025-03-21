@@ -33,7 +33,7 @@ namespace Insfrastructure.Data
                     var types = JsonSerializer.Deserialize<List<ProductType>>(typeData);
 
                     //add to db via context
-                    context.ProductTypes.AddRange(types);                    
+                    context.ProductTypes.AddRange(types);
 
                     await context.SaveChangesAsync();
                 }
@@ -47,7 +47,21 @@ namespace Insfrastructure.Data
                     var products = JsonSerializer.Deserialize<List<Product>>(productData);
 
                     //add to db via context
-                    context.Products.AddRange(products);                    
+                    context.Products.AddRange(products);
+
+                    await context.SaveChangesAsync();
+                }
+
+                //create delivery method in db
+                if (!context.DeliveryMethods.Any())
+                {
+                    var deliveryMethodData = File.ReadAllText("../Insfrastructure/Data/SeedData/delivery.json");
+
+                    //deserialize json to brand obj
+                    var deliveryMethods = JsonSerializer.Deserialize<List<DeliveryMethod>>(deliveryMethodData);
+
+                    //add to db via context
+                    context.DeliveryMethods.AddRange(deliveryMethods);
 
                     await context.SaveChangesAsync();
                 }

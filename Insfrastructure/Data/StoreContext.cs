@@ -1,4 +1,3 @@
-using System.Reflection;
 using Core.Enitities;
 using Core.Enitities.Identity;
 using Insfrastructure.Data.Config;
@@ -10,10 +9,11 @@ namespace Insfrastructure.Data
     public class StoreContext(DbContextOptions options) : IdentityDbContext<AppUser>(options)
     {
         //allow to querry entities and retrive data from db
-        public DbSet<Product> Products{ get;set; }
+        public DbSet<Product> Products { get; set; }
         public DbSet<ProductBrand> ProductBrands { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<Address> Addresses { get; set; }
+        public DbSet<DeliveryMethod> DeliveryMethods { get; set; }
 
         //overide method inside dbcontext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
