@@ -2,15 +2,16 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatError, MatFormFieldModule } from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { User } from 'src/app/shared/models/user';
 import { CommonModule } from '@angular/common';
+import { TextInputComponent } from "../../shared/components/text-input/text-input.component";
 
 @Component({
   selector: 'app-login',
@@ -23,30 +24,32 @@ import { CommonModule } from '@angular/common';
     MatButtonModule,
     MatIconModule,
     MatCheckboxModule,
-    MatError,
     RouterLink,
     CommonModule,
-    RouterLink
+    RouterLink,
+    TextInputComponent
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
-  loginForm: FormGroup;
-  hidePassword = true;
 
-  user: User;
-  authService = inject(AuthService);
-  fb = inject(FormBuilder);
-  snackBar = inject(SnackbarService);
-  router = inject(Router);
+  private authService = inject(AuthService);
+  private fb = inject(FormBuilder);
+  private snackBar = inject(SnackbarService);
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+  returnUrl = '/shop';
 
   constructor() {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
-    });
+    const url = this.activatedRoute.snapshot.queryParams['returnUrl'];
+    if (url) this.returnUrl = url;
   }
+
+  loginForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]]
+  });
 
   get email() { return this.loginForm.get('email'); }
   get password() { return this.loginForm.get('password'); }
@@ -55,7 +58,7 @@ export class LoginComponent {
     this.authService.login(this.loginForm.value.email, this.loginForm.value.password).subscribe({
       next: () => {
         this.snackBar.success('Login successful!');
-        this.router.navigate(['/shop']);
+        this.router.navigateByUrl(this.returnUrl);
       }
     })
 

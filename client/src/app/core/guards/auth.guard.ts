@@ -1,7 +1,6 @@
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
-import { AuthService } from '../core/services/auth.service';
+import { AuthService } from '../services/auth.service';
 import { inject } from '@angular/core';
-import { catchError, from, map, of, switchMap } from 'rxjs';
 
 export const authGuard: CanActivateFn =
   (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
@@ -12,8 +11,7 @@ export const authGuard: CanActivateFn =
     if (authService.isLoggedIn()) {
       return true;
     }
-    // console.log('ath guard here')
-    // debugger;
+
     router.navigate(['account/login']);
     return false;
 
