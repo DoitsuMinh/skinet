@@ -29,6 +29,7 @@ export class OrderSummaryComponent {
   removeCouponCode() {
     throw new Error('Method not implemented.');
   }
+
   applyCouponCode() {
     throw new Error('Method not implemented.');
   }
