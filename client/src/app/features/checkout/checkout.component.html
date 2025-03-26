@@ -1,3 +1,20 @@
-<div class="mt-5">
-  <h1 class="text-2xl">CHECKOUT</h1>
+<div class="mt-32 flex gap-6">
+  <div class="w-3/4">
+    <mat-stepper #stepper class="border border-gray-200 bg-white shadow-sm">
+      <mat-step label="Address">
+        <div id="address-element"></div>
+        <div class="mt-6 flex justify-between">
+          <button routerLink="/shop" mat-stroked-button>Continue shopping</button>
+          <button matStepperNext mat-flat-button>Next</button>
+        </div>
+      </mat-step>
+      <mat-step label="Shipping">Delivery form</mat-step>
+      <mat-step label="Payment">Payment form</mat-step>
+      <mat-step label="Confirmation">Review form</mat-step>
+    </mat-stepper>
+  </div>
+
+  <div class="w-1/4">
+    <app-order-summary></app-order-summary>
+  </div>
 </div>

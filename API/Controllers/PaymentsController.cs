@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    public class PaymentController(
+    public class PaymentsController(
         IPaymentService paymentService, 
         IGenericRepository<DeliveryMethod> dmRepo
         ) : BaseApiController

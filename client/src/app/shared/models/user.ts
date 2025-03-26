@@ -14,5 +14,6 @@ export type Address = {
   line2?: string;
   city: string;
   state: string;
+  country: string;
   postalCode: string;
 }

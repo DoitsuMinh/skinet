@@ -1,4 +1,4 @@
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule, CurrencyPipe, Location } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
@@ -34,4 +34,6 @@ export class OrderSummaryComponent {
     throw new Error('Method not implemented.');
   }
   cartService = inject(CartService);
+  location = inject(Location);
+
 }
