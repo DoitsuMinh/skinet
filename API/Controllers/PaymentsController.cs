@@ -24,7 +24,8 @@ namespace API.Controllers
         [HttpGet("delivery-methods")]
         public async Task<ActionResult<IReadOnlyList<DeliveryMethod>>> GetDeliveryMethods()
         {
-            return Ok(await dmRepo.ListAllAsync());
+            var dms = await dmRepo.ListAllAsync();
+            return Ok(dms);
         }
     }
 }

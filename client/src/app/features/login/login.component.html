@@ -7,8 +7,11 @@
 
     <mat-card-content>
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <app-text-input label="Email" formControlName="email"></app-text-input>
-        <app-text-input label="Password" formControlName="password"></app-text-input>
+        <app-text-input label="Email" formControlName="email" autocomplete="on"></app-text-input>
+        <app-text-input
+          label="Password"
+          formControlName="password"
+          type="password"></app-text-input>
 
         <div class="mb-4 flex items-center justify-between">
           <mat-checkbox color="primary">Remember me</mat-checkbox>

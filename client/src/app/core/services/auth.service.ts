@@ -110,7 +110,16 @@ export class AuthService {
   }
 
   updateAddress(address: Address) {
-    return this.http.post(`${environment.apiUrl}/account/adress`, address);
+    return this.http.post(`${environment.apiUrl}/account/address`, address).pipe(
+      tap(() => {
+        this.currentUser.update(user => {
+          if (user) {
+            user.address = address;
+            return user;
+          }
+        })
+      })
+    );
   }
 
   // getCurrentUser_LocalStorage(): void {

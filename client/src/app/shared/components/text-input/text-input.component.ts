@@ -18,6 +18,7 @@ import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/in
 export class TextInputComponent implements ControlValueAccessor {
   @Input() label = '';
   @Input() type = 'text';
+  @Input() autocomplete = 'off';
   constructor(@Self() public controlDir: NgControl) {
     this.controlDir.valueAccessor = this;
   }
