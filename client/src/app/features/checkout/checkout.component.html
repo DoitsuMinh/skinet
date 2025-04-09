@@ -44,8 +44,15 @@
         <app-checkout-review [confirmationToken]="confirmationToken"></app-checkout-review>
         <div class="mt-6 flex justify-between">
           <button matStepperPrevious mat-stroked-button>Back</button>
-          <button mat-flat-button (click)="confirmPayment(stepper)">
-            Pay {{ cartService.totals().total | currency }}
+          <button
+            mat-flat-button
+            (click)="confirmPayment(stepper)"
+            [disabled]="!confirmationToken || loading">
+            @if (loading) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              <span>Pay {{ cartService.totals().total | currency }}</span>
+            }
           </button>
         </div>
       </mat-step>

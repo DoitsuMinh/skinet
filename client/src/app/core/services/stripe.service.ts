@@ -82,7 +82,7 @@ export class StripeService {
       if (elements) {
         this.paymentElement = elements.create('payment');
       } else {
-        throw new Error('Element instatnce has not been initialised')
+        throw new Error('Element instance has not been initialised')
       }
     }
     return this.paymentElement;
