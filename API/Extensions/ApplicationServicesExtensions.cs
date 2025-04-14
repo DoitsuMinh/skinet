@@ -21,6 +21,7 @@ namespace API.Extensions
             services.AddScoped<IPaymentService, PaymentService>();
 
             services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.Configure<ApiBehaviorOptions>(options =>
             {

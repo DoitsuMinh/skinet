@@ -5,14 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Insfrastructure.Data
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
+    public class GenericRepository<T>(StoreContext _context) : IGenericRepository<T> where T : BaseEntity
     {
-        private readonly StoreContext _context;
-        public GenericRepository(StoreContext context)
-        {
-            _context = context;
-
-        }
 
         public async Task<T> GetByIdAsync(int id)
         {
@@ -44,6 +38,25 @@ namespace Insfrastructure.Data
             return SpecificationEvaluator<T>.GetQuery(_context.Set<T>().AsQueryable(), spec);
         }
 
-        
+        public void Add(T entity)
+        {
+            _context.Set<T>().Add(entity);
+        }
+        public void Remove(T entity)
+        {
+            _context.Set<T>().Remove(entity);
+        }
+
+        public void Update(T entity)
+        {
+            _context.Set<T>().Attach(entity);
+            _context.Entry(entity).State = EntityState.Modified;
+        }
+
+        public bool Exists(int id)
+        {
+            return _context.Set<T>().Any(x => x.Id == id);
+        }
+
     }
 }

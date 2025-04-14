@@ -16,14 +16,6 @@ builder.Services.AddControllers();
 builder.Services.GetSecretConfigureServices(builder.Configuration);
 #endregion
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(c =>
-{
-    var connString = builder.Configuration.GetConnectionString("Redis")
-                     ?? throw new Exception("Cannot get redis connection string");
-    var configuration = ConfigurationOptions.Parse(connString, true);
-    return ConnectionMultiplexer.Connect(configuration);
-});
-
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
 #region Configure Identity

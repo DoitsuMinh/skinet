@@ -3,6 +3,7 @@ using System;
 using Insfrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Insfrastructure.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    partial class StoreContextModelSnapshot : ModelSnapshot
+    [Migration("20250414041251_OrderAggregateAdded")]
+    partial class OrderAggregateAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.13");
@@ -474,10 +477,10 @@ namespace Insfrastructure.Migrations
                             b1.Property<int>("ExpMonth")
                                 .HasColumnType("INTEGER");
 
-                            b1.Property<int>("ExpYear")
+                            b1.Property<int>("Last4")
                                 .HasColumnType("INTEGER");
 
-                            b1.Property<int>("Last4")
+                            b1.Property<int>("Year")
                                 .HasColumnType("INTEGER");
 
                             b1.HasKey("OrderId");

@@ -1,5 +1,6 @@
 using Core.Enitities;
 using Core.Enitities.Identity;
+using Core.Enitities.OrderAggregate;
 using Insfrastructure.Data.Config;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,8 @@ namespace Insfrastructure.Data
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<DeliveryMethod> DeliveryMethods { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
 
         //overide method inside dbcontext
         protected override void OnModelCreating(ModelBuilder modelBuilder)

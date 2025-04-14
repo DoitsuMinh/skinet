@@ -7,13 +7,13 @@ using Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 using static API.Enums.TimeUnits;
 
 namespace API.Controllers
 {
     public class AccountController : BaseApiController
     {
-        private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IMapper _mapper;
         private readonly IAuthenticationService _authenticationService;
@@ -23,7 +23,6 @@ namespace API.Controllers
         {
             _mapper = mapper;
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
         }
 
@@ -81,6 +80,10 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<AuthenticatedResponse>> Login([FromBody] LoginDto loginModel)
         {
+            var myString = "’";
+            byte[] bytes = Encoding.Default.GetBytes(myString);
+            myString = Encoding.UTF8.GetString(bytes);
+
             if (loginModel is null) return BadRequest("Invalid client request");
             var user = await _signInManager.UserManager.FindByEmailAsync(loginModel.Email);
             if (user is null) return Unauthorized(new ApiResponse(401, "Email not existed"));

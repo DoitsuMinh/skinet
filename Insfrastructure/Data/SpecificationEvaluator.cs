@@ -33,6 +33,7 @@ namespace Insfrastructure.Data
 
             //take out include statement, aggregate and pass to query
             query = spec.Includes.Aggregate(query, (current, include) => current.Include(include));
+            query = spec.IncludeString.Aggregate(query, (current, include) => current.Include(include));
 
             return query;
         }

@@ -18,11 +18,6 @@ namespace Core.Specifications
         public List<Expression<Func<T, object>>> Includes { get; } =
             new List<Expression<Func<T, object>>>();
 
-        //add include statement to list
-        protected void AddInclude(Expression<Func<T, object>> includeExpression)
-        {
-            Includes.Add(includeExpression);
-        }
 
         public Expression<Func<T, object>> OrderBy { get; private set; }
 
@@ -33,6 +28,9 @@ namespace Core.Specifications
         public int Skip { get; private set; }
 
         public bool IsPagingEnabled { get; private set; }
+
+        public List<string> IncludeString { get; } = [];
+
         protected void AddOrderBy(Expression<Func<T, object>> orderByExpression)
         {
             OrderBy = orderByExpression;
@@ -48,6 +46,16 @@ namespace Core.Specifications
             Skip = skip;
             Take = take;
             IsPagingEnabled = true;
+        }
+
+        protected void AddInclude(Expression<Func<T, object>> includeExpression)
+        {
+            Includes.Add(includeExpression);
+        }
+        
+        protected void AddInclude(string includeExpression)
+        {
+            IncludeString.Add(includeExpression); // For ThenInclude
         }
     }
 }
