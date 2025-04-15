@@ -80,10 +80,6 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<AuthenticatedResponse>> Login([FromBody] LoginDto loginModel)
         {
-            var myString = "’";
-            byte[] bytes = Encoding.Default.GetBytes(myString);
-            myString = Encoding.UTF8.GetString(bytes);
-
             if (loginModel is null) return BadRequest("Invalid client request");
             var user = await _signInManager.UserManager.FindByEmailAsync(loginModel.Email);
             if (user is null) return Unauthorized(new ApiResponse(401, "Email not existed"));

@@ -15,6 +15,7 @@ namespace API.Dtos
         public required List<OrderItemDto> OrderItems { get; set; }
         public double Subtotal { get; set; }
         public double Discount { get; set; }
+        public double Total { get; set; }
         public required string Status { get; set; }
         public required string PaymentIntentId { get; set; }
     }

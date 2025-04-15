@@ -9,6 +9,8 @@ import { CheckoutComponent } from "./features/checkout/checkout.component";
 import { RegisterComponent } from "./features/register/register.component";
 import { emptyCartGuard } from "./core/guards/empty-cart.guard";
 import { CheckoutSuccessComponent } from "./features/checkout/checkout-success/checkout-success.component";
+import { OrderComponent } from "./features/orders/order.component";
+import { OrderDetailedComponent } from "./features/orders/order-detailed/order-detailed.component";
 
 
 export const routes: Routes = [
@@ -25,6 +27,8 @@ export const routes: Routes = [
       { path: 'cart', component: CartComponent },
       { path: 'checkout', component: CheckoutComponent, canActivate: [emptyCartGuard] },
       { path: 'checkout-success', component: CheckoutSuccessComponent },
+      { path: 'orders', component: OrderComponent },
+      { path: 'orders/:id', component: OrderDetailedComponent },
       { path: '**', redirectTo: '', pathMatch: 'full' },
     ]
   },

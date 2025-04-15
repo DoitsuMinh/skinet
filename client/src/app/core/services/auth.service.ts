@@ -1,12 +1,13 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { map, switchMap, tap } from 'rxjs';
+import { filter, map, of, switchMap, tap } from 'rxjs';
 import { AuthenticatedResponse } from 'src/app/shared/models/authenticatedResponse';
 import { Token } from 'src/app/shared/models/token';
 import { Address, User } from 'src/app/shared/models/user';
 
 import { environment } from 'src/environments/environment';
+import { SignalrService } from './signalr.service';
 
 const USER_STORAGE_KEY = 'user';
 
@@ -25,6 +26,7 @@ export class AuthService {
 
   private http = inject(HttpClient);
   private router = inject(Router);
+  private signalrService = inject(SignalrService);
 
   startRefreshingToken() {
     this.#isRefreshToken.set(true);
@@ -47,7 +49,12 @@ export class AuthService {
     return this.validateLoginInput(email, password).pipe(
       switchMap((token: AuthenticatedResponse) => {
         return this.getCurrentUser(token.accessToken);
-      })
+      }),
+      filter(() => this.isLoggedIn()),
+      switchMap(() => of(this.signalrService.createHubConnection()))
+      // switchMap(() => map(() => {
+      //   return this.signalrService.createHubConnection()
+      // }))
     );
   }
 
@@ -87,6 +94,7 @@ export class AuthService {
         console.log(user)
         user.token = token;
         this.currentUser.set(user);
+        return user;
       })
     )
   }
@@ -142,7 +150,9 @@ export class AuthService {
   logout() {
     // this.#userSignal.set(null);
     // if (this.isLoggedIn()) { this.revokeToken().subscribe(); }
-    return this.http.post(`${environment.apiUrl}/account/logout`, {})
+    return this.http.post(`${environment.apiUrl}/account/logout`, {}).pipe(
+      map(() => this.signalrService.stopHubConnection())
+    )
     // this.#userSignal.set(null);
     // localStorage.removeItem(USER_STORAGE_KEY);
   }

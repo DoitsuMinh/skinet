@@ -4,7 +4,7 @@ import { AuthService } from '../services/auth.service';
 
 export const authenticationInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-
+  console.log(req)
   // Add token to request if user is logged in
   if (authService.isLoggedIn()) {
     req = req.clone({

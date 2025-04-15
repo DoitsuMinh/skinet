@@ -1,6 +1,7 @@
 using API.Extensions;
 using API.Helpers;
 using API.Middleware;
+using API.SignalR;
 using Core.Enitities.Identity;
 using Insfrastructure.Data;
 using Insfrastructure.Identity;
@@ -40,6 +41,8 @@ builder.Services.AddCors(opt =>
     });
 });
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 // Apply migrations and seed data
 await app.MigrateAndSeedDatabase();
@@ -62,5 +65,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapGroup("api").MapIdentityApi<AppUser>(); // api/login
+app.MapHub<NotificationHub>("/hub/notifications");
 
 app.Run();

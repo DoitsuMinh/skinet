@@ -1,8 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { CartService } from './cart.service';
-import { filter, Observable, of, switchMap } from 'rxjs';
+import { filter, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { Cart } from 'src/app/shared/models/cart';
 import { AuthService } from './auth.service';
+import { SignalrService } from './signalr.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,14 +11,26 @@ import { AuthService } from './auth.service';
 export class InitService {
   private cartService = inject(CartService);
   private authService = inject(AuthService);
+  private signalRService = inject(SignalrService);
 
-  init(): Observable<Cart> {
+  init() {
     if (window.location.href.includes('/account/')) {
       return of(null);
     }
-    return this.getCurrentUserToken().pipe(
-      switchMap(() => this.getCartObservable())
-    )
+    // return this.getCurrentUserToken().pipe(
+    //   switchMap(() => this.getCartObservable())
+    // )
+    return forkJoin({
+      user: this.getCurrentUserToken().pipe(
+        map(user => {
+          if (user) {
+            console.log(this.authService.isLoggedIn())
+            this.signalRService.createHubConnection();
+          }
+        })
+      ),
+      cart: this.getCartObservable()
+    })
   }
 
   getCartObservable(): Observable<Cart> {

@@ -14,9 +14,11 @@ namespace API.Extensions
                 OrderDate = order.OrderDate,
                 ShippingAddress = order.ShippingAddress,
                 PaymentSummary = order.PaymentSummary,
-                ShippingPrice = order.DeliveryMethod.Price,
                 OrderItems = order.OrderItems.Select(x => x.toDto()).ToList(),
+                ShippingPrice = order.DeliveryMethod.Price,
+                Discount = order.Discount,
                 Subtotal = order.Subtotal,
+                Total = order.GetTotal(),
                 Status = order.Status.ToString(),
                 PaymentIntentId = order.PaymentIntentId,
                 DeliveryMethod = order.DeliveryMethod.Description,
@@ -27,9 +29,9 @@ namespace API.Extensions
         {
             return new OrderItemDto
             {
-                ProductId = order.Id,
-                PictureUrl = "",
-                ProductName = "order.ProductName",
+                ProductId = order.ItemOrdered.ProductId,
+                PictureUrl = order.ItemOrdered.PictureUrl,
+                ProductName = order.ItemOrdered.ProductName,
                 Price = order.Price,
                 Quantity = order.Quantity
             };
