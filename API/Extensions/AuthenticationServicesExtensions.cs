@@ -13,7 +13,7 @@ namespace API.Extensions
             {
                 options.DefaultScheme = "bearer";
             }).AddJwtBearer("bearer", options =>
-            {
+            {                
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
@@ -24,7 +24,6 @@ namespace API.Extensions
                     ValidIssuer = config["Token:Issuer"],
                     ValidAudience = config["Token:Audience"]
                 };
-
                 options.Events = new JwtBearerEvents
                 {
                     OnAuthenticationFailed = context =>
@@ -36,6 +35,20 @@ namespace API.Extensions
                         else
                         {
                             context.Response.Headers.Append("Token-Error", context.Exception.GetType().ToString());
+                        }
+                        return Task.CompletedTask;
+                    },
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.HttpContext.Request.Query["access_token"];
+
+                        // If the request is for hub...
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            (path.StartsWithSegments("/hub/notifications")))
+                        {
+                            // Read the token out of the query string
+                            context.Token = accessToken;
                         }
                         return Task.CompletedTask;
                     }

@@ -24,8 +24,7 @@ export class InitService {
       user: this.getCurrentUserToken().pipe(
         map(user => {
           if (user) {
-            console.log(this.authService.isLoggedIn())
-            this.signalRService.createHubConnection();
+            this.signalRService.createHubConnection(user);
           }
         })
       ),

@@ -9,6 +9,7 @@ import { environment } from 'src/environments/environment';
 export class OrderService {
   private baseUrl = environment.apiUrl;
   private http = inject(HttpClient);
+  orderComplete: boolean = false;
 
   createOrder(orderToCreate: OrderToCreate) {
     return this.http.post<Order>(`${this.baseUrl}/orders`, orderToCreate);

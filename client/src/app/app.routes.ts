@@ -11,6 +11,7 @@ import { emptyCartGuard } from "./core/guards/empty-cart.guard";
 import { CheckoutSuccessComponent } from "./features/checkout/checkout-success/checkout-success.component";
 import { OrderComponent } from "./features/orders/order.component";
 import { OrderDetailedComponent } from "./features/orders/order-detailed/order-detailed.component";
+import { orderCompleteGuard } from "./core/guards/order-complete.guard";
 
 
 export const routes: Routes = [
@@ -26,7 +27,7 @@ export const routes: Routes = [
       { path: 'shop/:id', component: ProductDetailsComponent },
       { path: 'cart', component: CartComponent },
       { path: 'checkout', component: CheckoutComponent, canActivate: [emptyCartGuard] },
-      { path: 'checkout-success', component: CheckoutSuccessComponent },
+      { path: 'checkout/success', component: CheckoutSuccessComponent, canActivate: [orderCompleteGuard] },
       { path: 'orders', component: OrderComponent },
       { path: 'orders/:id', component: OrderDetailedComponent },
       { path: '**', redirectTo: '', pathMatch: 'full' },

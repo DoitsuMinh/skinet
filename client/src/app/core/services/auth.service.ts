@@ -51,10 +51,7 @@ export class AuthService {
         return this.getCurrentUser(token.accessToken);
       }),
       filter(() => this.isLoggedIn()),
-      switchMap(() => of(this.signalrService.createHubConnection()))
-      // switchMap(() => map(() => {
-      //   return this.signalrService.createHubConnection()
-      // }))
+      switchMap((user) => of(this.signalrService.createHubConnection(user)))
     );
   }
 
