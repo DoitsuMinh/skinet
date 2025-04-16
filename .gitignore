@@ -7,4 +7,4 @@ appsettings.json
 *.rdb
 .vs
 client/ssl/
-/wwwroot/
+wwwroot/

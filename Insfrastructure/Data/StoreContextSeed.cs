@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json;
 using Core.Enitities;
 using Microsoft.Extensions.Logging;
@@ -8,12 +9,14 @@ namespace Insfrastructure.Data
     {
         public static async Task SeedAsync(StoreContext context, ILogger logger)
         {
+            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             try
             {
                 //create product brand in db
                 if (!context.ProductBrands.Any())
                 {
-                    var brandData = File.ReadAllText("../Insfrastructure/Data/SeedData/brands.json");
+                    var brandData = File
+                        .ReadAllText(path + @"/Data/SeedData/brands.json");
 
                     //deserialize json to brand obj
                     var brands = JsonSerializer.Deserialize<List<ProductBrand>>(brandData);
@@ -27,7 +30,8 @@ namespace Insfrastructure.Data
                 //create product type in db
                 if (!context.ProductTypes.Any())
                 {
-                    var typeData = File.ReadAllText("../Insfrastructure/Data/SeedData/types.json");
+                    var typeData = File
+                        .ReadAllText(path + @"/Data/SeedData/types.json");
 
                     //deserialize json to brand obj
                     var types = JsonSerializer.Deserialize<List<ProductType>>(typeData);
@@ -41,7 +45,8 @@ namespace Insfrastructure.Data
                 //create product in db
                 if (!context.Products.Any())
                 {
-                    var productData = File.ReadAllText("../Insfrastructure/Data/SeedData/products.json");
+                    var productData = File
+                        .ReadAllText(path + @"/Data/SeedData/products.json");
 
                     //deserialize json to brand obj
                     var products = JsonSerializer.Deserialize<List<Product>>(productData);

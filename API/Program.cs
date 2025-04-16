@@ -56,6 +56,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
+app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseCors("AllowAngularApp");
@@ -66,5 +67,6 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapGroup("api").MapIdentityApi<AppUser>(); // api/login
 app.MapHub<NotificationHub>("/hub/notifications");
+app.MapFallbackToController("Index", "Fallback");
 
 app.Run();
