@@ -24,6 +24,7 @@ import { OrderService } from 'src/app/core/services/order.service';
   standalone: true,
   imports: [
     OrderSummaryComponent,
+    MatStepper,
     MatStepperModule,
     MatButton,
     RouterLink,

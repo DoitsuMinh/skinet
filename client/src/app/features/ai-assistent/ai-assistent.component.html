@@ -1,0 +1,41 @@
+<div
+  class="fixed bottom-4 right-4 flex h-[500px] w-[400px] flex-col rounded-lg bg-white p-4 shadow-lg">
+  <div class="rounded-t-lg bg-blue-500 py-2 text-center text-white">
+    <h3 class="text-lg font-semibold">Assistant</h3>
+  </div>
+  <div
+    class="rounded-lg bg-red-700 py-2 text-center text-sm text-white"
+    [hidden]="errorMessage.length == 0">
+    {{ errorMessage }}
+  </div>
+  <div class="flex-1 space-y-2 overflow-y-auto p-2">
+    @for (message of messages; track $index) {
+      @if (message.sender === 'ai') {
+        <div class="flex w-auto">
+          <div class="justify-start rounded-lg bg-gray-100 p-2 text-gray-900">
+            <p class="text-sm">{{ message.text }}</p>
+          </div>
+        </div>
+      } @else {
+        <div class="flex w-auto">
+          <div class="ml-auto rounded-lg bg-blue-100 p-2 text-blue-900">
+            <p class="text-sm">{{ message.text }}</p>
+          </div>
+        </div>
+      }
+    }
+  </div>
+  <div class="mt-2 flex items-stretch space-x-2">
+    <mat-form-field class="m-0 flex-1" appearance="outline" floatLabel="always">
+      <mat-label>Type your message</mat-label>
+      <input
+        matInput
+        type="text"
+        [(ngModel)]="userMessage"
+        (keyup)="inputChanged($event)"
+        class="h-full"
+        [disabled]="isLoading" />
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="ask_question()" class="h-auto">Send</button>
+  </div>
+</div>

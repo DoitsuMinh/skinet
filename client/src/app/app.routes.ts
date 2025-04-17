@@ -12,6 +12,7 @@ import { CheckoutSuccessComponent } from "./features/checkout/checkout-success/c
 import { OrderComponent } from "./features/orders/order.component";
 import { OrderDetailedComponent } from "./features/orders/order-detailed/order-detailed.component";
 import { orderCompleteGuard } from "./core/guards/order-complete.guard";
+import { AiAssistentComponent } from "./features/ai-assistent/ai-assistent.component";
 
 
 export const routes: Routes = [
@@ -30,6 +31,7 @@ export const routes: Routes = [
       { path: 'checkout/success', component: CheckoutSuccessComponent, canActivate: [orderCompleteGuard] },
       { path: 'orders', component: OrderComponent },
       { path: 'orders/:id', component: OrderDetailedComponent },
+      { path: 'assistent', component: AiAssistentComponent },
       { path: '**', redirectTo: '', pathMatch: 'full' },
     ]
   },
